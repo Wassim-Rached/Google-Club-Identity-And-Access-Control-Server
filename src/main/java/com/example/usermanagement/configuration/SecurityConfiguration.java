@@ -50,6 +50,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
+                                .requestMatchers("/","/api/health").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/accounts").permitAll()
                                 .anyRequest().authenticated()
                 );
