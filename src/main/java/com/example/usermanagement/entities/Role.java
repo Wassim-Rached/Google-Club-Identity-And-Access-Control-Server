@@ -2,12 +2,15 @@ package com.example.usermanagement.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "roles")
 public class Role {
 
@@ -21,7 +24,7 @@ public class Role {
     @Column(nullable = false)
     private String scope;
 
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany(mappedBy = "roles",fetch = FetchType.LAZY)
     private Set<Account> accounts;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

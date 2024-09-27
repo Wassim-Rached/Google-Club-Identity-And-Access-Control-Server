@@ -23,6 +23,9 @@ public class Permission {
 
     @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
     private Set<Role> roles;
+
+    @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
+    private Set<Account> accounts;
     
     @Override
     public boolean equals(Object obj) {

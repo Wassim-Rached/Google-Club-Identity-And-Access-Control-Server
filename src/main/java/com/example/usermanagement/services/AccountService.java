@@ -6,6 +6,7 @@ import com.example.usermanagement.interfaces.services.IAccountService;
 import com.example.usermanagement.repositories.RoleRepository;
 import com.example.usermanagement.repositories.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,9 +36,7 @@ public class AccountService implements IAccountService {
 
     @Override
     public Account getMyAccount() {
-        var userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        System.out.println("userId = " + userId);
-        return accountRepository.findById((UUID) userId).orElseThrow(EntityNotFoundException::new);
+        return (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     @Override
