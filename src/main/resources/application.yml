@@ -2,9 +2,9 @@ spring:
   application:
     name: Identity-And-Access-Control-Server
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/identity_and_access_control}
-    username: ${DATABASE_USERNAME:postgres}
-    password: ${DATABASE_PASSWORD:postgres}
+    url: ${DATABASE_URL:jdbc:postgresql://ep-white-mountain-a2jkrsx3.eu-central-1.aws.neon.tech/google-club?sslmode=require}
+    username: ${DATABASE_USERNAME:google-club_owner}
+    password: ${DATABASE_PASSWORD:wrSROK5eA4vN}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
