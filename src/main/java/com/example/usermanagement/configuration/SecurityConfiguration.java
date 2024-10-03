@@ -45,16 +45,16 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorizeRequests ->
-                        authorizeRequests
-                                .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
-                                .requestMatchers("/","/api/health").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/accounts").permitAll()
-                                .anyRequest().authenticated()
-                );
+            http
+                    .cors(Customizer.withDefaults())
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .authorizeHttpRequests(authorizeRequests ->
+                            authorizeRequests
+                                    .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+                                    .requestMatchers("/","/api/health").permitAll()
+                                    .requestMatchers(HttpMethod.POST, "/api/accounts").permitAll()
+                                    .anyRequest().authenticated()
+                    );
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
