@@ -8,9 +8,11 @@ import lombok.Setter;
 @Setter
 public class SafeAccountInfo {
     private String email;
+    private String photoUrl;
 
     public SafeAccountInfo(Account userAccount) {
         this.email = userAccount.getEmail();
+        this.photoUrl = userAccount.getPhotoUrl();
     }
 
 }

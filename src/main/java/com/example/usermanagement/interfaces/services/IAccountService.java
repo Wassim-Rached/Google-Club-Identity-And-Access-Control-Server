@@ -1,5 +1,6 @@
 package com.example.usermanagement.interfaces.services;
 
+import com.example.usermanagement.dto.accounts.EditAuthoritiesRequest;
 import com.example.usermanagement.entities.Account;
 
 import java.util.List;
@@ -11,8 +12,8 @@ import java.util.UUID;
 */
 public interface IAccountService {
     void encodeAndSaveAccount(Account userAccount);
-    List<Account> getAllUsers();
+    List<Account> getAllAccounts();
     Account getMyAccount();
-    void grantRoleToAccount(UUID userId, UUID roleId);
+    void editAuthorities(UUID accountId, EditAuthoritiesRequest requestBody);
 }
 

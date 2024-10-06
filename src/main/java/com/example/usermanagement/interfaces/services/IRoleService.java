@@ -1,6 +1,7 @@
 package com.example.usermanagement.interfaces.services;
 
-import com.example.usermanagement.entities.Account;
+import com.example.usermanagement.dto.roles.RoleEditRequest;
+import com.example.usermanagement.dto.roles.RoleEditResponse;
 import com.example.usermanagement.entities.Role;
 
 import java.util.List;
@@ -12,6 +13,6 @@ import java.util.UUID;
 */
 public interface IRoleService {
     List<Role> getAllRoles();
-    void saveRole(Role role);
-    void addPermissionToRole(UUID roleId, UUID permissionId);
+    RoleEditResponse editRoles(List<RoleEditRequest> requestBody);
+    void deleteRole(UUID id);
 }

@@ -1,13 +1,14 @@
 package com.example.usermanagement.services;
 
-import com.example.usermanagement.dto.permissions.SimplePermissionDTO;
 import com.example.usermanagement.entities.Permission;
 import com.example.usermanagement.interfaces.services.IPermissionService;
 import com.example.usermanagement.repositories.PermissionRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,4 +25,15 @@ public class PermissionService implements IPermissionService{
     public void savePermission(Permission permission) {
         permissionRepository.save(permission);
     }
+
+    @Override
+    public void deletePermission(UUID permissionId) {
+        permissionRepository.deleteById(permissionId);
+    }
+
+    @Override
+    public Permission getPermission(UUID id) {
+        return permissionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    }
+
 }

@@ -3,6 +3,7 @@ package com.example.usermanagement.interfaces.services;
 import com.example.usermanagement.entities.Permission;
 
 import java.util.List;
+import java.util.UUID;
 
 /*
     Notes:
@@ -11,4 +12,6 @@ import java.util.List;
 public interface IPermissionService {
     List<Permission> getAllPermissions();
     void savePermission(Permission permission);
+    void deletePermission(UUID permissionId);
+    Permission getPermission(UUID id);
 }

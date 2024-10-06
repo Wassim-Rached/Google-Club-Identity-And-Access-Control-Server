@@ -1,14 +1,18 @@
 package com.example.usermanagement.entities;
 
+import com.example.usermanagement.exceptions.InputValidationException;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
 @Data
 @Table(name = "permissions")
+@NoArgsConstructor
 public class Permission {
 
     @Id
@@ -22,11 +26,20 @@ public class Permission {
     private String scope;
 
     @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
-    private Set<Account> accounts;
-    
+    private Set<Account> accounts = new HashSet<>();
+
+    public Permission(String publicName) {
+        String[] parts = publicName.split("\\.");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid permission name: " + publicName);
+        }
+        scope = parts[0];
+        name = parts[2];
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -36,19 +49,39 @@ public class Permission {
             return false;
         }
         Permission permission = (Permission) obj;
-        return id.equals(permission.id);
+
+//        if (id == null || permission.id == null) {
+        return getPublicName().equals(permission.getPublicName());
+//        }
+
+//        return id.equals(permission.id);
+    }
+
+    @Override
+    public String toString() {
+        return getPublicName();
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return getPublicName().hashCode();
     }
 
-//    public String getPublicName() {
-//        return scope + ".perm." + name;
-//    }
+    public String getPublicName() {
+        return scope + ".perm." + name;
+    }
 //
 //    public String getLocalName() {
 //        return name;
 //    }
+
+    public static boolean isValidPublicName(String publicName) {
+        return publicName.matches("^[a-z]+\\.perm\\.[a-z]+$");
+    }
+
+    public static void validatePublicName(String publicName) {
+        if (!isValidPublicName(publicName)) {
+            throw new InputValidationException("Permission public name must be in the format 'scope.perm.name' : " + publicName);
+        }
+    }
 }
