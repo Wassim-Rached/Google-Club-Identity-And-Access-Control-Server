@@ -2,7 +2,6 @@ package com.example.usermanagement.entities;
 
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -66,6 +65,43 @@ public class Account {
                 .forEach(authorities::add);
 
         return authorities;
+    }
+
+//    hashcode
+    @Override
+    public int hashCode() {
+        return Objects.hash(email);
+    }
+
+//    equals
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Account account = (Account) obj;
+        return email.equals(account.email);
+    }
+
+    // toString
+    @Override
+    public String toString() {
+        return email;
+    }
+
+    public static boolean isValidEmail(String email) {
+        // regex pattern for email validation
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        return email.matches(emailRegex);
+    }
+
+    public static void validateEmail(String email) {
+        if (!isValidEmail(email)) {
+            throw new IllegalArgumentException("Invalid email address : " + email);
+        }
     }
 
 }

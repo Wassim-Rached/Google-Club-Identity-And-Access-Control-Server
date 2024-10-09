@@ -1,5 +1,6 @@
 package com.example.usermanagement.dto.roles;
 
+import com.example.usermanagement.entities.Account;
 import com.example.usermanagement.entities.Permission;
 import com.example.usermanagement.entities.Role;
 import lombok.AllArgsConstructor;
@@ -15,10 +16,13 @@ import java.util.List;
 public class RoleEditRequest {
     private String publicName;
     private PermissionChanges permissions;
+    private AccountChanges accounts;
+    private String description;
 
     public void validate() {
         Role.validatePublicName(publicName);
         this.permissions.validate();
+        this.accounts.validate();
     }
 
     @Getter
@@ -36,7 +40,23 @@ public class RoleEditRequest {
                 revoke.forEach(Permission::validatePublicName);
             }
         }
+    }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class AccountChanges {
+        private List<String> grant;
+        private List<String> revoke;
+
+        public void validate() {
+            if (grant != null) {
+                grant.forEach(Account::validateEmail);
+            }
+            if (revoke != null) {
+                revoke.forEach(Account::validateEmail);
+            }
+        }
     }
 
     public List<String> getPermissionsToGrant() {
@@ -45,5 +65,13 @@ public class RoleEditRequest {
 
     public List<String> getPermissionsToRevoke() {
         return permissions.getRevoke();
+    }
+
+    public List<String> getAccountsToGrant() {
+        return accounts.getGrant();
+    }
+
+    public List<String> getAccountsToRevoke() {
+        return accounts.getRevoke();
     }
 }

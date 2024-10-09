@@ -25,6 +25,8 @@ public class Permission {
     @Column(nullable = false)
     private String scope;
 
+    private String description;
+
     @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
     private Set<Role> roles = new HashSet<>();
 
@@ -76,7 +78,7 @@ public class Permission {
 //    }
 
     public static boolean isValidPublicName(String publicName) {
-        return publicName.matches("^[a-z]+\\.perm\\.[a-z]+$");
+        return publicName.matches("^[a-z_]+\\.perm\\.[a-z_]+$");
     }
 
     public static void validatePublicName(String publicName) {

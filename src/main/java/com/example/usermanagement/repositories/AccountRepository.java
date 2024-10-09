@@ -1,13 +1,23 @@
 package com.example.usermanagement.repositories;
 
 import com.example.usermanagement.entities.Account;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 public interface AccountRepository extends JpaRepository<Account, UUID> {
     Account findByEmail(String email);
 
+    @Query("SELECT a FROM Account a WHERE a.email LIKE %:email%")
+    Page<Account> findByEmail(String email, Pageable pageable);
+
+    @Query("SELECT a FROM Account a WHERE a.email IN :emails")
+    List<Account> findByEmails(List<String> emails);
 //    @Modifying
 //    @Transactional
 //    @Query(value = """

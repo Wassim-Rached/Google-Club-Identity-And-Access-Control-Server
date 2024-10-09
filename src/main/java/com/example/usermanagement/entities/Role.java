@@ -28,6 +28,8 @@ public class Role {
     @Column(nullable = false)
     private String scope;
 
+    private String description;
+
     @ManyToMany(mappedBy = "roles",fetch = FetchType.LAZY)
     private Set<Account> accounts = new HashSet<>();
 
@@ -86,7 +88,7 @@ public class Role {
 //    }
 
     public static boolean isValidPublicName(String publicName) {
-        return publicName.matches("^[a-z]+\\.role\\.[a-z]+$");
+        return publicName.matches("^[a-z_]+\\.role\\.[a-z_]+$");
     }
 
     public static void validatePublicName(String publicName) {

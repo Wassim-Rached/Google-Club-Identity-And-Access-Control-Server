@@ -1,18 +1,27 @@
 package com.example.usermanagement.services;
 
+import com.example.usermanagement.dto.roles.CreateRoleDTO;
 import com.example.usermanagement.dto.roles.RoleEditRequest;
 import com.example.usermanagement.dto.roles.RoleEditResponse;
+import com.example.usermanagement.entities.Account;
 import com.example.usermanagement.entities.Permission;
 import com.example.usermanagement.entities.Role;
 import com.example.usermanagement.interfaces.services.IRoleService;
+import com.example.usermanagement.repositories.AccountRepository;
 import com.example.usermanagement.repositories.PermissionRepository;
 import com.example.usermanagement.repositories.RoleRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,36 +29,57 @@ public class RoleService implements IRoleService {
 
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
+    private final AccountRepository accountRepository;
 
     @Override
-    public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+    public Page<Role> searchAndSortRoles(String publicName, String sort, int page, int size, String direction) {
+        // default values
+        sort = sort != null ? sort : "scope";
+        publicName = publicName != null ? publicName : "";
+        page = Math.max(page, 0);
+        size = Math.min(size, 20);
+        size = Math.max(size, 1);
+
+        Sort order = Sort.by(sort);
+        if (direction.equals("desc")) {
+            order = order.descending();
+        }else{
+            order = order.ascending();
+        }
+
+        Pageable pageable = PageRequest.of(page, size, order);
+        return roleRepository.findByPublicName(publicName, pageable);
     }
 
     @Override
     @Transactional
-    public RoleEditResponse editRoles(List<RoleEditRequest> requestBody) {
-        RoleEditResponse response = new RoleEditResponse();
+    public Role createRole(CreateRoleDTO requestBody) {
+        Role role = requestBody.toEntity(null);
+        // get all permissions from the database
+        Set<Permission> permissions = new HashSet<>(permissionRepository.findAllById(role.getPermissions().stream().map(Permission::getId).collect(Collectors.toList())));
+        role.setPermissions(permissions);
+        return roleRepository.save(role);
+    }
+
+    @Override
+    @Transactional
+    public List<RoleEditResponse> editRoles(List<RoleEditRequest> requestBody) {
+        List<RoleEditResponse> responses = new ArrayList<>();
         requestBody.forEach(RoleEditRequest::validate);
 
         List<Role> roles = roleRepository.findByPublicNames(requestBody.stream().map(RoleEditRequest::getPublicName).toList());
 
-        // create and add the non-already-existing roles
         for (RoleEditRequest roleChangeRequest : requestBody) {
-            Role role = new Role(roleChangeRequest.getPublicName());
-            if(roles.contains(role)){
-                response.addUpdatedRole(role.getPublicName());
-                continue;
-            }
-            roles.add(role);
-            response.addCreatedRole(role.getPublicName());
-        }
+            RoleEditResponse response = new RoleEditResponse();
+            response.setRolePublicName(roleChangeRequest.getPublicName());
 
-        for (RoleEditRequest roleChangeRequest : requestBody) {
-            Role role = roles.stream().filter(r -> r.getPublicName().equals(roleChangeRequest.getPublicName())).findFirst().orElseThrow();
+            Role role = roles.stream().filter(r -> r.getPublicName().equals(roleChangeRequest.getPublicName())).findFirst().orElseThrow(() -> new EntityNotFoundException("Role not found : " + roleChangeRequest.getPublicName()));
 
             List<String> permissionsToGrant = roleChangeRequest.getPermissionsToGrant();
             List<String> permissionsToRevoke = roleChangeRequest.getPermissionsToRevoke();
+
+            List<String> accountsToBeGrantedTo = roleChangeRequest.getAccounts().getGrant();
+            List<String> accountsToBeRevokedFrom = roleChangeRequest.getAccounts().getRevoke();
 
             if (permissionsToGrant != null) {
                 List<Permission> alreadyExistsPermissions = permissionRepository.findByPublicNames(permissionsToGrant);
@@ -62,8 +92,7 @@ public class RoleService implements IRoleService {
                 for (String publicPermissionName : permissionsToGrant) {
                     Permission permission = new Permission(publicPermissionName);
                     if (alreadyExistsPermissions.contains(permission)) continue;
-                    role.getPermissions().add(permission);
-                    response.addGrantedPermission(permission.getPublicName());
+                    throw new EntityNotFoundException("Permission not found : " + publicPermissionName);
                 }
             }
 
@@ -76,14 +105,39 @@ public class RoleService implements IRoleService {
                 });
                 response.addRevokedPermissions(permissionsToRevoke);
             }
+
+            if(accountsToBeGrantedTo != null){
+                List<Account> accounts = accountRepository.findByEmails(accountsToBeGrantedTo);
+                for (Account account : accounts) {
+                    account.getRoles().add(role);
+                    response.addGrantedAccount(account.getEmail());
+                }
+            }
+
+            if(accountsToBeRevokedFrom != null){
+                for(Account account : role.getAccounts()){
+                    if(accountsToBeRevokedFrom.contains(account.getEmail())) {
+                        account.getRoles().remove(role);
+                        response.addRevokedAccount(account.getEmail());
+                    }
+                }
+            }
+
+            accountRepository.saveAll(role.getAccounts());
+            responses.add(response);
         }
 
         roleRepository.saveAll(roles);
-        return response;
+        return responses;
     }
 
     @Override
     public void deleteRole(UUID id) {
         roleRepository.deleteById(id);
+    }
+
+    @Override
+    public Role getRoleById(UUID id) {
+        return roleRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 }

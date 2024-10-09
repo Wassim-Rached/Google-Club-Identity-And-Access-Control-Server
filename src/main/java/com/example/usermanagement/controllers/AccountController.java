@@ -1,11 +1,13 @@
 package com.example.usermanagement.controllers;
 
 import com.example.usermanagement.dto.accounts.CreateAccountDTO;
+import com.example.usermanagement.dto.accounts.DetailedAccountDTO;
 import com.example.usermanagement.dto.accounts.EditAuthoritiesRequest;
-import com.example.usermanagement.dto.accounts.SafeAccountInfo;
+import com.example.usermanagement.dto.accounts.GeneralAccountDTO;
 import com.example.usermanagement.entities.Account;
 import com.example.usermanagement.interfaces.services.IAccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,23 +23,33 @@ public class AccountController {
     private final IAccountService accountService;
 
     @GetMapping
-    public ResponseEntity<List<SafeAccountInfo>> getUsers() {
-        var accounts = accountService.getAllAccounts().stream()
-                .map(SafeAccountInfo::new)
-                .toList();
-        return new ResponseEntity<>(accounts, HttpStatus.OK);
+    public ResponseEntity<Page<GeneralAccountDTO>> getAccounts(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        Page<Account> accounts = accountService.searchAndSortAccounts(email, sort, page, size, direction);
+        return new ResponseEntity<>(accounts.map(GeneralAccountDTO::new), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<UUID> createUser(@RequestBody CreateAccountDTO requestBody) {
+    public ResponseEntity<UUID> createAccount(@RequestBody CreateAccountDTO requestBody) {
         Account userAccount = requestBody.toEntity(null);
         accountService.encodeAndSaveAccount(userAccount);
         return new ResponseEntity<>(userAccount.getId(), HttpStatus.CREATED);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<SafeAccountInfo> getMe() {
-        var account = new SafeAccountInfo(accountService.getMyAccount());
+    public ResponseEntity<GeneralAccountDTO> getMe() {
+        var account = new GeneralAccountDTO(accountService.getMyAccount());
+        return new ResponseEntity<>(account, HttpStatus.OK);
+    }
+
+    @GetMapping("/{accountId}")
+    public ResponseEntity<DetailedAccountDTO> getAccount(@PathVariable UUID accountId) {
+        var account = new DetailedAccountDTO(accountService.getAccountById(accountId));
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 

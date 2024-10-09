@@ -10,20 +10,13 @@ import java.util.List;
 @Getter
 @Setter
 public class RoleEditResponse {
-    private RoleActionSummary roles;
+    private String rolePublicName;
     private PermissionActionSummary permissions;
+    private AccountActionSummary accounts;
 
     public RoleEditResponse() {
-        roles = new RoleActionSummary();
         permissions = new PermissionActionSummary();
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public static class RoleActionSummary {
-        private List<String> created = new ArrayList<>();
-        private List<String> updated = new ArrayList<>();
+        accounts = new AccountActionSummary();
     }
 
     @Getter
@@ -34,12 +27,12 @@ public class RoleEditResponse {
         private List<String> revoked = new ArrayList<>();
     }
 
-    public void addCreatedRole(String roleName) {
-        roles.getCreated().add(roleName);
-    }
-
-    public void addUpdatedRole(String roleName) {
-        roles.getUpdated().add(roleName);
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class AccountActionSummary {
+        private List<String> granted = new ArrayList<>();
+        private List<String> revoked = new ArrayList<>();
     }
 
     public void addGrantedPermission(String permissionName) {
@@ -56,6 +49,22 @@ public class RoleEditResponse {
 
     public void addRevokedPermissions(List<String> permissionNames) {
         permissions.getRevoked().addAll(permissionNames);
+    }
+
+    public void addGrantedAccount(String accountEmail) {
+        accounts.getGranted().add(accountEmail);
+    }
+
+    public void addRevokedAccount(String accountEmail) {
+        accounts.getRevoked().add(accountEmail);
+    }
+
+    public void addGrantedAccounts(List<String> accountEmails) {
+        accounts.getGranted().addAll(accountEmails);
+    }
+
+    public void addRevokedAccounts(List<String> accountEmails) {
+        accounts.getRevoked().addAll(accountEmails);
     }
 }
 
