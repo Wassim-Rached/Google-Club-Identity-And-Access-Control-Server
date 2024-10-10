@@ -11,18 +11,20 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SimplePermissionDTO {
+public class GeneralPermissionDTO {
     private UUID id;
     private String name;
     private String scope;
+    private String description;
 
-    public SimplePermissionDTO(Permission permission) {
+    public GeneralPermissionDTO(Permission permission) {
         this.id = permission.getId();
         this.name = permission.getName();
         this.scope = permission.getScope();
+        this.description = permission.getDescription();
     }
 
-    public static Set<SimplePermissionDTO> fromPermissions(Set<Permission> permissions) {
-        return permissions.stream().map(SimplePermissionDTO::new).collect(java.util.stream.Collectors.toSet());
+    public static Set<GeneralPermissionDTO> fromPermissions(Set<Permission> permissions) {
+        return permissions.stream().map(GeneralPermissionDTO::new).collect(java.util.stream.Collectors.toSet());
     }
 }

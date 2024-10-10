@@ -1,6 +1,8 @@
 package com.example.usermanagement.interfaces.services;
 
+import com.example.usermanagement.dto.accounts.EditAuthoritiesRequest;
 import com.example.usermanagement.entities.Account;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,8 +13,9 @@ import java.util.UUID;
 */
 public interface IAccountService {
     void encodeAndSaveAccount(Account userAccount);
-    List<Account> getAllUsers();
+    Page<Account> searchAndSortAccounts(String email, String sort, int page, int size, String direction);
     Account getMyAccount();
-    void grantRoleToAccount(UUID userId, UUID roleId);
+    void editAuthorities(UUID accountId, EditAuthoritiesRequest requestBody);
+    Account getAccountById(UUID accountId);
 }
 

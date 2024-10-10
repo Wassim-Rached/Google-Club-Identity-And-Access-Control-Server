@@ -1,13 +1,13 @@
 package com.example.usermanagement.controllers;
 
-import com.example.usermanagement.dto.StandardApiResponse;
 import com.example.usermanagement.dto.accounts.CreateAccountDTO;
-import com.example.usermanagement.dto.accounts.SafeAccountInfo;
+import com.example.usermanagement.dto.accounts.DetailedAccountDTO;
+import com.example.usermanagement.dto.accounts.EditAuthoritiesRequest;
+import com.example.usermanagement.dto.accounts.GeneralAccountDTO;
 import com.example.usermanagement.entities.Account;
-import com.example.usermanagement.services.AccountService;
-import jakarta.transaction.Transactional;
+import com.example.usermanagement.interfaces.services.IAccountService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,32 +20,42 @@ import java.util.UUID;
 @RequestMapping("/api/accounts")
 public class AccountController {
 
-    private final AccountService accountService;
+    private final IAccountService accountService;
 
     @GetMapping
-    public ResponseEntity<StandardApiResponse<List<SafeAccountInfo>>> getUsers() {
-        var accounts = accountService.getAllUsers().stream()
-                .map(SafeAccountInfo::new)
-                .toList();
-        return new ResponseEntity<>(new StandardApiResponse<>(accounts), HttpStatus.OK);
+    public ResponseEntity<Page<GeneralAccountDTO>> getAccounts(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        Page<Account> accounts = accountService.searchAndSortAccounts(email, sort, page, size, direction);
+        return new ResponseEntity<>(accounts.map(GeneralAccountDTO::new), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<StandardApiResponse<UUID>> createUser(@RequestBody CreateAccountDTO requestBody) {
+    public ResponseEntity<UUID> createAccount(@RequestBody CreateAccountDTO requestBody) {
         Account userAccount = requestBody.toEntity(null);
         accountService.encodeAndSaveAccount(userAccount);
-        return new ResponseEntity<>(new StandardApiResponse<>(userAccount.getId()), HttpStatus.CREATED);
+        return new ResponseEntity<>(userAccount.getId(), HttpStatus.CREATED);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<StandardApiResponse<SafeAccountInfo>> getMe() {
-        var account = new SafeAccountInfo(accountService.getMyAccount());
-        return new ResponseEntity<>(new StandardApiResponse<>(account), HttpStatus.OK);
+    public ResponseEntity<GeneralAccountDTO> getMe() {
+        var account = new GeneralAccountDTO(accountService.getMyAccount());
+        return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
-    @PostMapping("/{accountId}/roles")
-    public ResponseEntity<StandardApiResponse<Void>> grantRoleToAccount(@PathVariable UUID accountId, @RequestBody UUID roleId) {
-        accountService.grantRoleToAccount(accountId, roleId);
-        return new ResponseEntity<>(new StandardApiResponse<>(), HttpStatus.OK);
+    @GetMapping("/{accountId}")
+    public ResponseEntity<DetailedAccountDTO> getAccount(@PathVariable UUID accountId) {
+        var account = new DetailedAccountDTO(accountService.getAccountById(accountId));
+        return new ResponseEntity<>(account, HttpStatus.OK);
+    }
+
+    @PostMapping("/{accountId}/authorities")
+    public ResponseEntity<Void> editAuthorities(@PathVariable UUID accountId, @RequestBody EditAuthoritiesRequest requestBody) {
+        accountService.editAuthorities(accountId, requestBody);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
