@@ -4,12 +4,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class EditAuthoritiesRequest {
+    private String email;
     private RoleChanges roles;
     private PermissionChanges permissions;
 
@@ -17,35 +18,35 @@ public class EditAuthoritiesRequest {
     @Setter
     @NoArgsConstructor
     public static class RoleChanges {
-        private List<String> add;
-        private List<String> revoke;
+        private Set<String> grant;
+        private Set<String> revoke;
     }
 
     @Getter
     @Setter
     @NoArgsConstructor
     public static class PermissionChanges {
-        private List<String> add;
-        private List<String> revoke;
+        private Set<String> grant;
+        private Set<String> revoke;
 
     }
 
-    public List<String> getRolesToAdd() {
+    public Set<String> getRolesTogrant() {
         if (roles == null) return null;
-        return roles.getAdd();
+        return roles.getGrant();
     }
 
-    public List<String> getRolesToRevoke() {
+    public Set<String> getRolesToRevoke() {
         if (roles == null) return null;
         return roles.getRevoke();
     }
 
-    public List<String> getPermissionsToAdd() {
+    public Set<String> getPermissionsToGrant() {
         if (permissions == null) return null;
-        return permissions.getAdd();
+        return permissions.getGrant();
     }
 
-    public List<String> getPermissionsToRemove() {
+    public Set<String> getPermissionsToRevoke() {
         if (permissions == null) return null;
         return permissions.getRevoke();
     }

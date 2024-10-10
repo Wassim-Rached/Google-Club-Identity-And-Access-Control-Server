@@ -67,7 +67,7 @@ public class RoleService implements IRoleService {
         List<RoleEditResponse> responses = new ArrayList<>();
         requestBody.forEach(RoleEditRequest::validate);
 
-        List<Role> roles = roleRepository.findByPublicNames(requestBody.stream().map(RoleEditRequest::getPublicName).toList());
+        Set<Role> roles = roleRepository.findByPublicNames(requestBody.stream().map(RoleEditRequest::getPublicName).toList());
 
         for (RoleEditRequest roleChangeRequest : requestBody) {
             RoleEditResponse response = new RoleEditResponse();
@@ -82,7 +82,7 @@ public class RoleService implements IRoleService {
             List<String> accountsToBeRevokedFrom = roleChangeRequest.getAccounts().getRevoke();
 
             if (permissionsToGrant != null) {
-                List<Permission> alreadyExistsPermissions = permissionRepository.findByPublicNames(permissionsToGrant);
+                Set<Permission> alreadyExistsPermissions = permissionRepository.findByPublicNames(permissionsToGrant);
 
                 // Add permissions to role
                 role.getPermissions().addAll(alreadyExistsPermissions);

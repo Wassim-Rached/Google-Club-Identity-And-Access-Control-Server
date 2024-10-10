@@ -1,9 +1,6 @@
 package com.example.usermanagement.controllers;
 
-import com.example.usermanagement.dto.accounts.CreateAccountDTO;
-import com.example.usermanagement.dto.accounts.DetailedAccountDTO;
-import com.example.usermanagement.dto.accounts.EditAuthoritiesRequest;
-import com.example.usermanagement.dto.accounts.GeneralAccountDTO;
+import com.example.usermanagement.dto.accounts.*;
 import com.example.usermanagement.entities.Account;
 import com.example.usermanagement.interfaces.services.IAccountService;
 import lombok.RequiredArgsConstructor;
@@ -53,9 +50,9 @@ public class AccountController {
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
-    @PostMapping("/{accountId}/authorities")
-    public ResponseEntity<Void> editAuthorities(@PathVariable UUID accountId, @RequestBody EditAuthoritiesRequest requestBody) {
-        accountService.editAuthorities(accountId, requestBody);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PostMapping("/authorities")
+    public ResponseEntity<List<AccountAuthoritiesEditResponse>> editAuthorities(@RequestBody List<EditAuthoritiesRequest> requestBody) {
+        List<AccountAuthoritiesEditResponse> res = accountService.editAuthorities(requestBody);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }

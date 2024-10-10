@@ -8,13 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface AccountRepository extends JpaRepository<Account, UUID> {
-    Account findByEmail(String email);
-
     @Query("SELECT a FROM Account a WHERE a.email LIKE %:email%")
     Page<Account> findByEmail(String email, Pageable pageable);
+
+    @Query("SELECT a FROM Account a WHERE a.email = :email")
+    Optional<Account> findByEmail(String email);
 
     @Query("SELECT a FROM Account a WHERE a.email IN :emails")
     List<Account> findByEmails(List<String> emails);

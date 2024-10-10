@@ -1,5 +1,6 @@
 package com.example.usermanagement.services;
 
+import com.example.usermanagement.dto.accounts.AccountAuthoritiesEditResponse;
 import com.example.usermanagement.dto.accounts.EditAuthoritiesRequest;
 import com.example.usermanagement.entities.Permission;
 import com.example.usermanagement.entities.Role;
@@ -19,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -71,53 +73,44 @@ public class AccountService implements IAccountService {
 
     @Override
     @Transactional
-    public void editAuthorities(UUID accountId, EditAuthoritiesRequest requestBody) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(EntityNotFoundException::new);
-        System.out.println(requestBody.getRolesToAdd());
-        // Handle adding roles
-        if (requestBody.getRolesToAdd() != null) {
-            List<Role> alreadyExistRolesToAdd = roleRepository.findByPublicNames(requestBody.getRolesToAdd());
-            account.getRoles().addAll(alreadyExistRolesToAdd);
+    public List<AccountAuthoritiesEditResponse> editAuthorities(List<EditAuthoritiesRequest> requestBody) {
+        List<AccountAuthoritiesEditResponse> responses = new ArrayList<>();
 
-            // create the roles that are not in the database
-            for (String publicRoleName : requestBody.getRolesToAdd()) {
-                Role role = new Role(publicRoleName);
-                System.out.println("Role: " + role);
-                if(alreadyExistRolesToAdd.contains(role)) continue;
-                account.getRoles().add(role);
-            }
+        for (EditAuthoritiesRequest accountChangeRequest : requestBody) {
+            AccountAuthoritiesEditResponse response = new AccountAuthoritiesEditResponse();
+            response.setEmail(accountChangeRequest.getEmail());
+
+            Account account = accountRepository.findByEmail(accountChangeRequest.getEmail())
+                    .orElseThrow(EntityNotFoundException::new);
+
+            // Names
+            Set<String> rolesToGrantNames = accountChangeRequest.getRolesTogrant();
+            Set<String> rolesToRemoveNames = accountChangeRequest.getRolesToRevoke();
+            Set<String> permissionsToGrantNames = accountChangeRequest.getPermissionsToGrant();
+            Set<String> permissionsToRevokeNames = accountChangeRequest.getPermissionsToRevoke();
+
+            // Entities
+            Set<Role> rolesToGrant = roleRepository.findByPublicNames(rolesToGrantNames);
+            Set<Role> rolesToRemove = roleRepository.findByPublicNames(rolesToRemoveNames);
+            Set<Permission> permissionsToGrant = permissionRepository.findByPublicNames(permissionsToGrantNames);
+            Set<Permission> permissionsToRevoke = permissionRepository.findByPublicNames(permissionsToRevokeNames);
+
+            // Handle adding roles
+            account.getRoles().addAll(rolesToGrant);
+
+            // Handle removing roles
+            account.getRoles().removeAll(rolesToRemove);
+
+            // Handle adding permissions
+            account.getPermissions().addAll(permissionsToGrant);
+
+            // Handle removing permissions
+            account.getPermissions().removeAll(permissionsToRevoke);
+
+            accountRepository.save(account);
+            responses.add(response);
         }
 
-        // Handle removing roles
-        if (requestBody.getRolesToRevoke() != null) {
-            Set<Role> accountRoles = account.getRoles();
-            accountRoles.removeIf(role -> requestBody.getRolesToRevoke().contains(role.getPublicName()));
-        }
-
-        // Handle adding permissions
-        if (requestBody.getPermissionsToAdd() != null) {
-            List<Permission> alreadyExistPermissionsToAdd = permissionRepository.findByPublicNames(requestBody.getPermissionsToAdd());
-            account.getPermissions().addAll(alreadyExistPermissionsToAdd);
-
-            // create the permissions that are not in the database
-            for (String publicPermissionName : requestBody.getPermissionsToAdd()) {
-                Permission permission = new Permission(publicPermissionName);
-                if(alreadyExistPermissionsToAdd.contains(permission)) continue;
-                account.getPermissions().add(permission);
-            }
-
-        }
-
-        // Handle removing permissions
-        if (requestBody.getPermissionsToRemove() != null) {
-            Set<Permission> accountPermissions = account.getPermissions();
-            accountPermissions.removeIf(permission -> requestBody.getPermissionsToRemove().contains(permission.getPublicName()));
-        }
-
-        System.out.println(account.getRoles());
-        System.out.println(account.getPermissions());
-
-        accountRepository.save(account);
+        return responses;
     }
 }
