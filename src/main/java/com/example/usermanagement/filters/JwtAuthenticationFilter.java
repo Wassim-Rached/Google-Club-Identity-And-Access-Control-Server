@@ -58,12 +58,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // Set the authentication in the context if it's not already set
 
                     UUID userId = UUID.fromString(username);
-                    Account userAccount = userAccountRepository.findById(userId).orElseThrow(EntityNotFoundException::new);
+                    Account userAccount = userAccountRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("Account to authenticate not found"));
 
                     Hibernate.initialize(userAccount.getAuthorities());
 
+                    System.out.println("Account authorities: " + userAccount.getAuthorities());
+
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userAccount, null, userAccount.getAuthorities());
+
 
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

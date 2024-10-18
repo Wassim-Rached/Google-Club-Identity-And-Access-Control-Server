@@ -1,6 +1,8 @@
 package com.example.usermanagement.advices;
 
 
+import com.example.usermanagement.exceptions.BadRequestException;
+import com.example.usermanagement.exceptions.ForbiddenException;
 import com.example.usermanagement.exceptions.InputValidationException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,6 +21,16 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(InputValidationException.class)
     public ResponseEntity<String> handleInvalidQuestionResponseException(InputValidationException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<String> handleForbiddenException(ForbiddenException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<String> handleBadRequestException(BadRequestException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 

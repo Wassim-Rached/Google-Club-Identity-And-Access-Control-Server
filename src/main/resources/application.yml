@@ -13,6 +13,11 @@ spring:
 
 
 app:
+  email:
+    verification:
+      token:
+        expiryInSec: ${EMAIL_VERIFICATION_TOKEN_EXPIRY:86400}
+        maxTokenGenerationInSec: ${MAX_TOKEN_GENERATION_IN_SEC:600}
   CORS:
     ALLOWED-ORIGINS: ${CORS_ALLOWED_ORIGINS:*}
     ALLOWED-METHODS: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}

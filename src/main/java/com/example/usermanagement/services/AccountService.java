@@ -5,6 +5,7 @@ import com.example.usermanagement.dto.accounts.EditAuthoritiesRequest;
 import com.example.usermanagement.entities.Permission;
 import com.example.usermanagement.entities.Role;
 import com.example.usermanagement.entities.Account;
+import com.example.usermanagement.exceptions.ForbiddenException;
 import com.example.usermanagement.interfaces.services.IAccountService;
 import com.example.usermanagement.repositories.PermissionRepository;
 import com.example.usermanagement.repositories.RoleRepository;
@@ -41,6 +42,42 @@ public class AccountService implements IAccountService {
     }
 
     @Override
+    public void verifyAccountEmail(String accountEmail) {
+        Account account = accountRepository.findByEmail(accountEmail).orElseThrow(
+                ()-> new EntityNotFoundException("Account with email " + accountEmail + " not found")
+        );
+
+        if(account.getIsEmailVerified()) return;
+
+        account.setIsEmailVerified(true);
+        accountRepository.save(account);
+    }
+
+    @Override
+    public void requestResetPassword(Account account) {
+        // TODO: generate,persist and send reset password token
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void resetPassword(String token, String newPassword) {
+        // TODO: validate token and change password
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void changeMyPassword(String oldPassword, String newPassword) {
+        Account account = getMyAccount();
+        if (!passwordEncoder.matches(oldPassword, account.getPassword())) {
+            throw new ForbiddenException("Old password is incorrect");
+        }
+        // TODO: count tries and lock account if too many tries
+
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+    }
+
+    @Override
     public Page<Account> searchAndSortAccounts(String email, String sort, int page, int size, String direction){
         // default values
         sort = sort != null ? sort : "email";
@@ -68,6 +105,12 @@ public class AccountService implements IAccountService {
     @Override
     public Account getAccountById(UUID accountId) {
         return accountRepository.findById(accountId)
+                .orElseThrow(EntityNotFoundException::new);
+    }
+
+    @Override
+    public Account getAccountByEmail(String email) {
+        return accountRepository.findByEmail(email)
                 .orElseThrow(EntityNotFoundException::new);
     }
 

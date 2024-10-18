@@ -15,8 +15,13 @@ import java.util.UUID;
 public interface IAccountService {
     void encodeAndSaveAccount(Account userAccount);
     Page<Account> searchAndSortAccounts(String email, String sort, int page, int size, String direction);
+    void verifyAccountEmail(String accountEmail);
     Account getMyAccount();
     List<AccountAuthoritiesEditResponse> editAuthorities(List<EditAuthoritiesRequest> requestBody);
     Account getAccountById(UUID accountId);
+    Account getAccountByEmail(String email);
+    void requestResetPassword(Account account);
+    void resetPassword(String token, String newPassword);
+    void changeMyPassword(String oldPassword, String newPassword);
 }
 

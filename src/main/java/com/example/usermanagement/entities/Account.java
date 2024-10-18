@@ -27,6 +27,9 @@ public class Account {
 
     private String photoUrl;
 
+    @Column(nullable = false,name = "is_email_verified",columnDefinition = "boolean default false")
+    private Boolean isEmailVerified;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "account_roles",
@@ -50,18 +53,18 @@ public class Account {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
         // Add roles as authorities
-        roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName())));
+        roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getPublicName())));
 
         // Add permissions from roles
         roles.stream()
                 .map(Role::getPermissions)  // Assuming Role class has a getPermissions() method
                 .flatMap(Set::stream)
-                .map(permission -> new SimpleGrantedAuthority(permission.getName()))
+                .map(permission -> new SimpleGrantedAuthority(permission.getPublicName()))
                 .forEach(authorities::add);
 
         // Add individual permissions
         permissions.stream()
-                .map(permission -> new SimpleGrantedAuthority(permission.getName()))
+                .map(permission -> new SimpleGrantedAuthority(permission.getPublicName()))
                 .forEach(authorities::add);
 
         return authorities;
