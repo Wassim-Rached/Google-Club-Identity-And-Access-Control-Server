@@ -2,6 +2,7 @@ package com.example.usermanagement.services;
 
 import com.example.usermanagement.dto.accounts.AccountAuthoritiesEditResponse;
 import com.example.usermanagement.dto.accounts.EditAuthoritiesRequest;
+import com.example.usermanagement.dto.accounts.UpdateAccountDTO;
 import com.example.usermanagement.entities.Permission;
 import com.example.usermanagement.entities.Role;
 import com.example.usermanagement.entities.Account;
@@ -10,6 +11,7 @@ import com.example.usermanagement.interfaces.services.IAccountService;
 import com.example.usermanagement.repositories.PermissionRepository;
 import com.example.usermanagement.repositories.RoleRepository;
 import com.example.usermanagement.repositories.AccountRepository;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,11 @@ public class AccountService implements IAccountService {
 
     @Override
     public void encodeAndSaveAccount(Account userAccount) {
+        Account alreadyExists = accountRepository.findByEmail(userAccount.getEmail()).orElse(null);
+        if (alreadyExists != null) {
+            throw new EntityExistsException("Account with this email already exists");
+        }
+
         userAccount.setPassword(passwordEncoder.encode(userAccount.getPassword()));
         accountRepository.save(userAccount);
     }
@@ -63,6 +70,24 @@ public class AccountService implements IAccountService {
     public void resetPassword(String token, String newPassword) {
         // TODO: validate token and change password
         throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void verifyIdentity(boolean isVerified,Account account) {
+        account.setIsIdentityVerified(isVerified);
+        accountRepository.save(account);
+    }
+
+    @Override
+    public void lockAccount(boolean lock, Account account) {
+        account.setIsLocked(lock);
+        accountRepository.save(account);
+    }
+
+    @Override
+    public void changeMembership(boolean member, Account account) {
+        account.setIsIdentityVerified(member);
+        accountRepository.save(account);
     }
 
     @Override
@@ -103,6 +128,13 @@ public class AccountService implements IAccountService {
     }
 
     @Override
+    public Account updateMyAccount(UpdateAccountDTO requestBody) {
+        Account account = getMyAccount();
+        account.setPhotoUrl(requestBody.getPhotoUrl());
+        return accountRepository.save(account);
+    }
+
+    @Override
     public Account getAccountById(UUID accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(EntityNotFoundException::new);
@@ -111,7 +143,7 @@ public class AccountService implements IAccountService {
     @Override
     public Account getAccountByEmail(String email) {
         return accountRepository.findByEmail(email)
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException("'"+email+"'" + " Does not exist"));
     }
 
     @Override

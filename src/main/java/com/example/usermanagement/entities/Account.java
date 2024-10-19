@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.time.Instant;
 import java.util.*;
 
 
@@ -25,10 +26,20 @@ public class Account {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "photo_url")
     private String photoUrl;
 
+    @Column(nullable = false, name = "created_at")
+    private Instant createdAt = Instant.now();
+
     @Column(nullable = false,name = "is_email_verified",columnDefinition = "boolean default false")
-    private Boolean isEmailVerified;
+    private Boolean isEmailVerified = false;
+
+    @Column(nullable = false,name = "is_locked",columnDefinition = "boolean default false")
+    private Boolean isLocked = false;
+
+    @Column(nullable = false, name = "is_identity_verified", columnDefinition = "boolean default false")
+    private Boolean isIdentityVerified = false;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(

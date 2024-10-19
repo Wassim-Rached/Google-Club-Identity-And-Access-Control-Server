@@ -62,8 +62,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     Hibernate.initialize(userAccount.getAuthorities());
 
-                    System.out.println("Account authorities: " + userAccount.getAuthorities());
-
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userAccount, null, userAccount.getAuthorities());
 

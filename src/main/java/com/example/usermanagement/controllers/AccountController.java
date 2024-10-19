@@ -4,6 +4,7 @@ import com.example.usermanagement.dto.accounts.*;
 import com.example.usermanagement.entities.Account;
 import com.example.usermanagement.interfaces.services.IAccountService;
 import com.example.usermanagement.interfaces.services.IEmailVerificationTokenService;
+import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ public class AccountController {
     // auth related
     @PostMapping
     public ResponseEntity<UUID> createAccount(@RequestBody CreateAccountDTO requestBody) {
+
         Account userAccount = requestBody.toEntity(null);
         accountService.encodeAndSaveAccount(userAccount);
 
@@ -35,7 +37,7 @@ public class AccountController {
         return new ResponseEntity<>(userAccount.getId(), HttpStatus.CREATED);
     }
 
-    @GetMapping("/verify-email/")
+    @GetMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@RequestParam String token) {
         String email = emailVerificationTokenService.consumeEmailVerificationToken(token);
         accountService.verifyAccountEmail(email);
@@ -85,12 +87,16 @@ public class AccountController {
         return new ResponseEntity<>(accounts.map(GeneralAccountDTO::new), HttpStatus.OK);
     }
 
-
-
     @GetMapping("/me")
-    public ResponseEntity<GeneralAccountDTO> getMe() {
-        var account = new GeneralAccountDTO(accountService.getMyAccount());
-        return new ResponseEntity<>(account, HttpStatus.OK);
+    public ResponseEntity<?> getMe(@RequestParam(defaultValue = "false") boolean isDetailed) {
+        Account account = accountService.getMyAccount();
+        return new ResponseEntity<>(isDetailed ? new DetailedAccountDTO(account) : new GeneralAccountDTO(account), HttpStatus.OK);
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<GeneralAccountDTO> updateMe(@RequestBody UpdateAccountDTO requestBody) {
+        Account account = accountService.updateMyAccount(requestBody);
+        return new ResponseEntity<>(new GeneralAccountDTO(account), HttpStatus.OK);
     }
 
     @GetMapping("/{accountId}")
@@ -104,4 +110,26 @@ public class AccountController {
         List<AccountAuthoritiesEditResponse> res = accountService.editAuthorities(requestBody);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
+
+    @PostMapping("/{accountId}/identity-verification")
+    public ResponseEntity<String> verifyIdentity(@RequestParam boolean verify, @PathVariable UUID accountId) {
+        Account account = accountService.getAccountById(accountId);
+        accountService.verifyIdentity(verify, account);
+        return new ResponseEntity<>("Identity verified", HttpStatus.OK);
+    }
+
+    @PostMapping("/{accountId}/lock-account")
+    public ResponseEntity<String> lockAccount(@RequestParam boolean lock, @PathVariable UUID accountId) {
+        Account account = accountService.getAccountById(accountId);
+        accountService.lockAccount(lock, account);
+        return new ResponseEntity<>("Account lock status updated", HttpStatus.OK);
+    }
+
+    @PostMapping("/{accountId}/membership")
+    public ResponseEntity<String> changeMembership(@RequestParam boolean member, @PathVariable UUID accountId) {
+        Account account = accountService.getAccountById(accountId);
+        accountService.changeMembership(member, account);
+        return new ResponseEntity<>("Membership status updated", HttpStatus.OK);
+    }
+
 }

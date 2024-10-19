@@ -4,6 +4,7 @@ package com.example.usermanagement.advices;
 import com.example.usermanagement.exceptions.BadRequestException;
 import com.example.usermanagement.exceptions.ForbiddenException;
 import com.example.usermanagement.exceptions.InputValidationException;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,11 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<String> handleEntityExistsException(EntityExistsException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)

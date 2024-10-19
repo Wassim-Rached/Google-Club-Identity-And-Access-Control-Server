@@ -1,5 +1,6 @@
 package com.example.usermanagement.dto.roles;
 
+import com.example.usermanagement.dto.permissions.GeneralPermissionDTO;
 import com.example.usermanagement.entities.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,12 +19,14 @@ public class GeneralRoleDTO {
     private String name;
     private String scope;
     private String description;
+    private Set<GeneralPermissionDTO> permissions;
 
     public GeneralRoleDTO(Role role) {
         this.id = role.getId();
         this.name = role.getName();
         this.scope = role.getScope();
         this.description = role.getDescription();
+        this.permissions = GeneralPermissionDTO.fromPermissions(role.getPermissions());
     }
 
     public static Set<GeneralRoleDTO> fromRoles(Set<Role> roles) {

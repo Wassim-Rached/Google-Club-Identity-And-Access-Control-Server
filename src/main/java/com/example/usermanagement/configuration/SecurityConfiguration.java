@@ -51,7 +51,14 @@ public class SecurityConfiguration {
                             authorizeRequests
                                     .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                                     .requestMatchers("/","/api/health").permitAll()
-                                    .requestMatchers(HttpMethod.POST, "/api/accounts").permitAll()
+                                    .requestMatchers(HttpMethod.POST,
+                                            "/api/accounts",
+                                            "/api/accounts/verify-email/resend"
+                                            ).permitAll()
+                                    .requestMatchers(HttpMethod.GET,
+                                            "/api/accounts/verify-email",
+                                            "/api/accounts/reset-password/request"
+                                    ).permitAll()
                                     .anyRequest().authenticated()
                     );
 

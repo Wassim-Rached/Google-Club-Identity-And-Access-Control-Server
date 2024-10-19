@@ -2,6 +2,7 @@ package com.example.usermanagement.interfaces.services;
 
 import com.example.usermanagement.dto.accounts.AccountAuthoritiesEditResponse;
 import com.example.usermanagement.dto.accounts.EditAuthoritiesRequest;
+import com.example.usermanagement.dto.accounts.UpdateAccountDTO;
 import com.example.usermanagement.entities.Account;
 import org.springframework.data.domain.Page;
 
@@ -14,14 +15,24 @@ import java.util.UUID;
 */
 public interface IAccountService {
     void encodeAndSaveAccount(Account userAccount);
+
     Page<Account> searchAndSortAccounts(String email, String sort, int page, int size, String direction);
-    void verifyAccountEmail(String accountEmail);
-    Account getMyAccount();
-    List<AccountAuthoritiesEditResponse> editAuthorities(List<EditAuthoritiesRequest> requestBody);
     Account getAccountById(UUID accountId);
     Account getAccountByEmail(String email);
+
+    List<AccountAuthoritiesEditResponse> editAuthorities(List<EditAuthoritiesRequest> requestBody);
+    void verifyIdentity(boolean isVerified, Account account);
+
+    Account getMyAccount();
+    Account updateMyAccount(UpdateAccountDTO requestBody);
+
     void requestResetPassword(Account account);
     void resetPassword(String token, String newPassword);
     void changeMyPassword(String oldPassword, String newPassword);
+    void verifyAccountEmail(String accountEmail);
+
+    void lockAccount(boolean lock, Account account);
+
+    void changeMembership(boolean member, Account account);
 }
 
