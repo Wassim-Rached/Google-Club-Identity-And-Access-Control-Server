@@ -2,6 +2,8 @@ package com.example.usermanagement.entities;
 
 import com.example.usermanagement.exceptions.InputValidationException;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +15,8 @@ import java.util.UUID;
 @Data
 @Table(name = "permissions")
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Permission {
 
     @Id

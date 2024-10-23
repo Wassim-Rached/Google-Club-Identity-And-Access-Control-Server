@@ -21,9 +21,18 @@ public class StartupRunner implements ApplicationRunner{
         // create special permissions
 
         var permissions = List.of(
-                new Permission("special.perm.verified_email"),
-                new Permission("special.perm.membership"),
-                new Permission("special.perm.verified_identity")
+                Permission.builder()
+                        .scope("special")
+                        .name("perm.verified_email")
+                        .description("This permission is granted to accounts with verified email").build(),
+                Permission.builder()
+                        .scope("special")
+                        .name("perm.membership")
+                        .description("This permission is granted to accounts with membership").build(),
+                Permission.builder()
+                        .scope("special")
+                        .name("perm.verified_identity")
+                        .description("This permission is granted to accounts with verified identity").build()
         );
 
         // check if the permissions already exist
