@@ -86,4 +86,16 @@ public class Permission {
             throw new InputValidationException("Permission public name must be in the format 'scope.perm.name' : " + publicName);
         }
     }
+
+    public boolean isSpecial() {
+        return scope.equals("special");
+    }
+
+    public static boolean isSpecial(String publicName){
+        return Permission.getScopeFromPublicName(publicName).equals("special");
+    }
+
+    public static String getScopeFromPublicName(String publicName) {
+        return publicName.split("\\.")[0];
+    }
 }

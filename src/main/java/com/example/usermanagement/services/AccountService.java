@@ -6,6 +6,7 @@ import com.example.usermanagement.dto.accounts.UpdateAccountDTO;
 import com.example.usermanagement.entities.Permission;
 import com.example.usermanagement.entities.Role;
 import com.example.usermanagement.entities.Account;
+import com.example.usermanagement.events.publishers.*;
 import com.example.usermanagement.exceptions.ForbiddenException;
 import com.example.usermanagement.interfaces.services.IAccountService;
 import com.example.usermanagement.repositories.PermissionRepository;
@@ -15,6 +16,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +38,7 @@ public class AccountService implements IAccountService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public void encodeAndSaveAccount(Account userAccount) {
@@ -58,6 +61,10 @@ public class AccountService implements IAccountService {
 
         account.setIsEmailVerified(true);
         accountRepository.save(account);
+
+        // Publish event
+        var event = new AccountEmailVerifiedEvent(this,account.getEmail());
+        eventPublisher.publishEvent(event);
     }
 
     @Override
@@ -76,6 +83,15 @@ public class AccountService implements IAccountService {
     public void verifyIdentity(boolean isVerified,Account account) {
         account.setIsIdentityVerified(isVerified);
         accountRepository.save(account);
+
+        // Publish event
+        if(isVerified){
+            var event = new AccountIdentityVerifiedEvent(this,account.getEmail());
+            eventPublisher.publishEvent(event);
+        }else{
+            var event = new AccountIdentityUnverifiedEvent(this,account.getEmail());
+            eventPublisher.publishEvent(event);
+        }
     }
 
     @Override
@@ -88,6 +104,15 @@ public class AccountService implements IAccountService {
     public void changeMembership(boolean member, Account account) {
         account.setIsIdentityVerified(member);
         accountRepository.save(account);
+
+        // Publish event
+        if(member){
+            var event = new AccountBecomeMemberEvent(this,account.getEmail());
+            eventPublisher.publishEvent(event);
+        }else{
+            var event = new AccountNoLongerMemberEvent(this,account.getEmail());
+            eventPublisher.publishEvent(event);
+        }
     }
 
     @Override
@@ -188,4 +213,5 @@ public class AccountService implements IAccountService {
 
         return responses;
     }
+
 }

@@ -32,9 +32,9 @@ public class RoleController {
         }
 
         @PostMapping
-        public ResponseEntity<GeneralRoleDTO> createRole(@RequestBody CreateRoleDTO requestBody) {
+        public ResponseEntity<UUID> createRole(@RequestBody CreateRoleDTO requestBody) {
             Role role = roleService.createRole(requestBody);
-            return ResponseEntity.ok(new GeneralRoleDTO(role));
+            return ResponseEntity.ok(role.getId());
         }
 
         @PostMapping("/edit")

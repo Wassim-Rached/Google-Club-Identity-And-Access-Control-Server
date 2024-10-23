@@ -1,5 +1,6 @@
 package com.example.usermanagement.controllers;
 
+import com.example.usermanagement.dto.permissions.CreatePermissionDTO;
 import com.example.usermanagement.dto.permissions.DetailedPermissionDTO;
 import com.example.usermanagement.dto.permissions.GeneralPermissionDTO;
 import com.example.usermanagement.entities.Permission;
@@ -32,7 +33,8 @@ public class PermissionController {
     }
 
     @PostMapping
-    public ResponseEntity<UUID> createPermission(@RequestBody Permission permission) {
+    public ResponseEntity<UUID> createPermission(@RequestBody CreatePermissionDTO requestBody) {
+        Permission permission = requestBody.toEntity(null);
         permissionService.savePermission(permission);
         return ResponseEntity.status(201).body(permission.getId());
     }

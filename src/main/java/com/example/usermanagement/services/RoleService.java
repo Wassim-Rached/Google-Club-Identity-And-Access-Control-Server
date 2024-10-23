@@ -6,6 +6,7 @@ import com.example.usermanagement.dto.roles.RoleEditResponse;
 import com.example.usermanagement.entities.Account;
 import com.example.usermanagement.entities.Permission;
 import com.example.usermanagement.entities.Role;
+import com.example.usermanagement.exceptions.InputValidationException;
 import com.example.usermanagement.interfaces.services.IRoleService;
 import com.example.usermanagement.repositories.AccountRepository;
 import com.example.usermanagement.repositories.PermissionRepository;
@@ -78,8 +79,8 @@ public class RoleService implements IRoleService {
             List<String> permissionsToGrant = roleChangeRequest.getPermissionsToGrant();
             List<String> permissionsToRevoke = roleChangeRequest.getPermissionsToRevoke();
 
-            List<String> accountsToBeGrantedTo = roleChangeRequest.getAccounts().getGrant();
-            List<String> accountsToBeRevokedFrom = roleChangeRequest.getAccounts().getRevoke();
+            List<String> accountsToBeGrantedTo = roleChangeRequest.getAccountsToGrant();
+            List<String> accountsToBeRevokedFrom = roleChangeRequest.getAccountsToRevoke();
 
             if (permissionsToGrant != null) {
                 Set<Permission> alreadyExistsPermissions = permissionRepository.findByPublicNames(permissionsToGrant);
@@ -133,7 +134,21 @@ public class RoleService implements IRoleService {
 
     @Override
     public void deleteRole(UUID id) {
-        roleRepository.deleteById(id);
+        Role role = roleRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+
+        if(role.isSpecial()){
+            throw new InputValidationException("Cannot delete special roles");
+        }
+
+        // we loop through it because the rel is owned by the account
+        for (Account account : role.getAccounts()) {
+            account.getRoles().remove(role);
+        }
+
+        role.getAccounts().clear();
+        role.getPermissions().clear();
+
+        roleRepository.delete(role);
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.example.usermanagement.entities;
 
 import com.example.usermanagement.exceptions.InputValidationException;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -96,4 +95,43 @@ public class Role {
             throw new InputValidationException("Role public name must be in the format 'scope.role.name' : " + publicName);
         }
     }
+
+    public boolean isSpecial() {
+        return this.scope.equals("special");
+    }
+
+    public static boolean isSpecial(String publicName) {
+        return getScopeFromPublicName(publicName).equals("special");
+    }
+
+    public static String getScopeFromPublicName(String publicName) {
+        return publicName.split("\\.")[0];
+    }
+
+    public static boolean canBeGrantedPermission(String rolePublicName,String permissionPublicName) {
+        // they should either be at the same scope or the role is global
+        String roleScope = Role.getScopeFromPublicName(rolePublicName);
+        String permissionScope = Permission.getScopeFromPublicName(permissionPublicName);
+        return roleScope.equals(permissionScope) || roleScope.equals("global");
+    }
+
+    public static boolean canBeRevokedPermission(String rolePublicName, String permissionPublicName) {
+        // they should either be at the same scope or the role is global
+        String roleScope = Role.getScopeFromPublicName(rolePublicName);
+        String permissionScope = Permission.getScopeFromPublicName(permissionPublicName);
+        return roleScope.equals(permissionScope) || roleScope.equals("global");
+    }
+
+    public static void validateCanBeGrantedPermission(String rolePublicName, String permissionPublicName) {
+        if (!canBeGrantedPermission(rolePublicName, permissionPublicName)) {
+            throw new InputValidationException("Role " + rolePublicName + " cannot be granted permission " + permissionPublicName);
+        }
+    }
+
+    public static void validateCanBeRevokedPermission(String rolePublicName, String permissionPublicName) {
+        if (!canBeRevokedPermission(rolePublicName, permissionPublicName)) {
+            throw new InputValidationException("Role " + rolePublicName + " cannot be revoked permission " + permissionPublicName);
+        }
+    }
+
 }

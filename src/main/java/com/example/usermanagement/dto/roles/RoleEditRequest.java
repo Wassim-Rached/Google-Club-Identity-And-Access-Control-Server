@@ -3,6 +3,7 @@ package com.example.usermanagement.dto.roles;
 import com.example.usermanagement.entities.Account;
 import com.example.usermanagement.entities.Permission;
 import com.example.usermanagement.entities.Role;
+import com.example.usermanagement.exceptions.InputValidationException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ public class RoleEditRequest {
 
     public void validate() {
         Role.validatePublicName(publicName);
-        this.permissions.validate();
+        this.permissions.validate(publicName);
         this.accounts.validate();
     }
 
@@ -32,12 +33,24 @@ public class RoleEditRequest {
         private List<String> grant;
         private List<String> revoke;
 
-        public void validate() {
+        public void validate(String rolePublicName) {
             if (grant != null) {
-                grant.forEach(Permission::validatePublicName);
+                for(String permissionPublicName : grant) {
+                    Role.validateCanBeGrantedPermission(rolePublicName, permissionPublicName);
+                    Permission.validatePublicName(permissionPublicName);
+                    if(Permission.isSpecial(permissionPublicName)) {
+                        throw new InputValidationException("Cannot grant special permissions");
+                    }
+                }
             }
             if (revoke != null) {
-                revoke.forEach(Permission::validatePublicName);
+                for(String permissionPublicName : revoke) {
+                    Role.validateCanBeRevokedPermission(rolePublicName, permissionPublicName);
+                    Permission.validatePublicName(permissionPublicName);
+                    if(Permission.isSpecial(permissionPublicName)) {
+                        throw new InputValidationException("Cannot revoke special permissions");
+                    }
+                }
             }
         }
     }
@@ -73,5 +86,9 @@ public class RoleEditRequest {
 
     public List<String> getAccountsToRevoke() {
         return accounts.getRevoke();
+    }
+
+    public String getRoleScope() {
+        return Role.getScopeFromPublicName(publicName);
     }
 }

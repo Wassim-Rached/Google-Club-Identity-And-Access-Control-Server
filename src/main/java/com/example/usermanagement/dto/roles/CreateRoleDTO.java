@@ -29,6 +29,9 @@ public class CreateRoleDTO implements IEntityDTO<Role,Void> {
             throw new InputValidationException("Role name can only contain letters and _ : " + name);
         if(!scope.matches("[a-zA-Z_]+"))
             throw new InputValidationException("Role scope can only contain letters and _ : " + scope);
+        if(scope.equals("special")){
+            throw new InputValidationException("Role scope cannot be 'special'");
+        }
         Role role = new Role();
         role.setName(name);
         role.setScope(scope);

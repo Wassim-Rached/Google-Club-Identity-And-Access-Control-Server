@@ -1,6 +1,7 @@
 package com.example.usermanagement.services;
 
 import com.example.usermanagement.entities.Permission;
+import com.example.usermanagement.exceptions.InputValidationException;
 import com.example.usermanagement.interfaces.services.IPermissionService;
 import com.example.usermanagement.repositories.PermissionRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -46,7 +47,23 @@ public class PermissionService implements IPermissionService{
 
     @Override
     public void deletePermission(UUID permissionId) {
-        permissionRepository.deleteById(permissionId);
+        Permission permission = permissionRepository.findById(permissionId).orElseThrow(EntityNotFoundException::new);
+
+        if(permission.isSpecial()){
+            throw new InputValidationException("Cannot delete special permissions");
+        }
+
+        for (var role : permission.getRoles()) {
+            role.getPermissions().remove(permission);
+        }
+        for (var account : permission.getAccounts()) {
+            account.getPermissions().remove(permission);
+        }
+
+        permission.getRoles().clear();
+        permission.getAccounts().clear();
+
+        permissionRepository.delete(permission);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.example.usermanagement.dto.accounts;
 
+import com.example.usermanagement.entities.Permission;
+import com.example.usermanagement.exceptions.InputValidationException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +15,15 @@ public class EditAuthoritiesRequest {
     private String email;
     private RoleChanges roles;
     private PermissionChanges permissions;
+
+    public void validate() {
+        if (email == null || email.isBlank()) {
+            throw new InputValidationException("Email is required");
+        }
+        if(this.permissions != null){
+            this.permissions.validate();
+        }
+    }
 
     @Getter
     @Setter
@@ -29,6 +40,21 @@ public class EditAuthoritiesRequest {
         private Set<String> grant;
         private Set<String> revoke;
 
+        public void validate() {
+            if (this.grant != null) {
+                for (String permissionPublicName : grant){
+                    if (Permission.isSpecial(permissionPublicName))
+                        throw new InputValidationException("Cannot grant special permissions");
+                }
+            }
+
+            if (this.revoke != null) {
+                for (String permissionPublicName : revoke) {
+                    if (Permission.isSpecial(permissionPublicName))
+                        throw new InputValidationException("Cannot revoke special permissions");
+                }
+            }
+        }
     }
 
     public Set<String> getRolesTogrant() {

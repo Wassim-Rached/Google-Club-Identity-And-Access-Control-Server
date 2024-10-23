@@ -4,6 +4,7 @@ import com.example.usermanagement.dto.accounts.AccountAuthoritiesEditResponse;
 import com.example.usermanagement.dto.accounts.EditAuthoritiesRequest;
 import com.example.usermanagement.dto.accounts.UpdateAccountDTO;
 import com.example.usermanagement.entities.Account;
+import com.example.usermanagement.entities.Permission;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

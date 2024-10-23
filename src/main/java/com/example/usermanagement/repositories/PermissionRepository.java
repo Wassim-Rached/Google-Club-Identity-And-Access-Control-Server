@@ -7,10 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public interface PermissionRepository extends JpaRepository<Permission, UUID> {
     @Query("SELECT p FROM Permission p WHERE CONCAT(p.scope, '.perm.', p.name) IN :publicNames")
@@ -19,4 +16,6 @@ public interface PermissionRepository extends JpaRepository<Permission, UUID> {
     @Query("SELECT p FROM Permission p WHERE CONCAT(p.scope, '.perm.', p.name) LIKE %:publicName%")
     Page<Permission> findByPublicName(@Param("publicName") String publicName, Pageable pageable);
 
+    @Query("SELECT p FROM Permission p WHERE CONCAT(p.scope, '.perm.', p.name) = :publicName")
+    Optional<Permission> findByPublicName(@Param("publicName") String publicName);
 }
