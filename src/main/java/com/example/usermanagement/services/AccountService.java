@@ -177,6 +177,8 @@ public class AccountService implements IAccountService {
         List<AccountAuthoritiesEditResponse> responses = new ArrayList<>();
 
         for (EditAuthoritiesRequest accountChangeRequest : requestBody) {
+            accountChangeRequest.validate();
+
             AccountAuthoritiesEditResponse response = new AccountAuthoritiesEditResponse();
             response.setEmail(accountChangeRequest.getEmail());
 
