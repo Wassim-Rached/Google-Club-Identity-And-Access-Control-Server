@@ -27,7 +27,6 @@ public interface IAccountService {
     Account getMyAccount();
     Account updateMyAccount(UpdateAccountDTO requestBody);
 
-    void requestResetPassword(Account account);
     void resetPassword(String token, String newPassword);
     void changeMyPassword(String oldPassword, String newPassword);
     void verifyAccountEmail(String accountEmail);

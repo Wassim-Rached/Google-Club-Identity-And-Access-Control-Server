@@ -2,10 +2,14 @@ package com.example.usermanagement.controllers;
 
 import com.example.usermanagement.dto.accounts.*;
 import com.example.usermanagement.entities.Account;
+import com.example.usermanagement.events.publishers.emails.EmailVerificationTokenGeneratedEvent;
+import com.example.usermanagement.events.publishers.emails.PasswordResetGeneratedEvent;
 import com.example.usermanagement.interfaces.services.IAccountService;
+import com.example.usermanagement.interfaces.services.IEmailService;
 import com.example.usermanagement.interfaces.services.IEmailVerificationTokenService;
-import jakarta.persistence.EntityExistsException;
+import com.example.usermanagement.interfaces.services.IPasswordResetTokenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +25,11 @@ public class AccountController {
 
     private final IAccountService accountService;
     private final IEmailVerificationTokenService emailVerificationTokenService;
+    private final IPasswordResetTokenService passwordResetTokenService;
+    private final IEmailService emailService;
+    private final ApplicationEventPublisher eventPublisher;
 
-    // auth related
+    // account management related
     @PostMapping
     public ResponseEntity<UUID> createAccount(@RequestBody CreateAccountDTO requestBody) {
 
@@ -32,49 +39,12 @@ public class AccountController {
         // generate email verification token
         String token = emailVerificationTokenService.generateEmailVerificationToken(userAccount);
 
-        // TODO: send email with token
+        String body = "Click here to verify your email: http://localhost:8080/api/accounts/verify-email?token=" + token;
+        emailService.sendEmail("wa55death405@gmail.com", "Email verification", body);
 
         return new ResponseEntity<>(userAccount.getId(), HttpStatus.CREATED);
     }
 
-    @GetMapping("/verify-email")
-    public ResponseEntity<String> verifyEmail(@RequestParam String token) {
-        String email = emailVerificationTokenService.consumeEmailVerificationToken(token);
-        accountService.verifyAccountEmail(email);
-        return new ResponseEntity<>("Email verified", HttpStatus.OK);
-    }
-
-    // resend email verification token
-    @PostMapping("/verify-email/resend")
-    public ResponseEntity<String> resendEmailVerificationToken(@RequestParam String email) {
-        Account account = accountService.getAccountByEmail(email);
-        String token = emailVerificationTokenService.generateEmailVerificationToken(account);
-
-        // TODO: send email with token
-
-        return new ResponseEntity<>("Email verification token sent", HttpStatus.OK);
-    }
-
-    @PostMapping("/reset-password/request")
-    public ResponseEntity<String> resetPassword(@RequestParam String email) {
-        Account account = accountService.getAccountByEmail(email);
-        accountService.requestResetPassword(account);
-        return new ResponseEntity<>("Password reset", HttpStatus.OK);
-    }
-
-    @PostMapping("/reset-password/confirm")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest requestBody) {
-        accountService.resetPassword(requestBody.getToken(), requestBody.getNewPassword());
-        return new ResponseEntity<>("Password reset", HttpStatus.OK);
-    }
-
-    @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest requestBody) {
-        accountService.changeMyPassword(requestBody.getOldPassword(), requestBody.getNewPassword());
-        return new ResponseEntity<>("Password changed", HttpStatus.OK);
-    }
-
-    // info related
     @GetMapping
     public ResponseEntity<Page<GeneralAccountDTO>> getAccounts(
             @RequestParam(required = false) String email,
@@ -111,6 +81,51 @@ public class AccountController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+
+    // email verification related
+    @GetMapping("/verify-email")
+    public ResponseEntity<String> verifyEmail(@RequestParam String token) {
+        String email = emailVerificationTokenService.consumeEmailVerificationToken(token);
+        accountService.verifyAccountEmail(email);
+        return new ResponseEntity<>("Email verified", HttpStatus.OK);
+    }
+
+    @PostMapping("/verify-email/resend")
+    public ResponseEntity<String> resendEmailVerificationToken(@RequestParam String email) {
+        Account account = accountService.getAccountByEmail(email);
+        String token = emailVerificationTokenService.generateEmailVerificationToken(account);
+
+        eventPublisher.publishEvent(new EmailVerificationTokenGeneratedEvent(this, token, email));
+
+        return new ResponseEntity<>("Email verification token sent", HttpStatus.OK);
+    }
+
+
+    // password related
+    @PostMapping("/reset-password/resend")
+    public ResponseEntity<String> requestResetPassword(@RequestParam String email) {
+        Account account = accountService.getAccountByEmail(email);
+        String token = passwordResetTokenService.generatePasswordResetToken(account);
+
+        eventPublisher.publishEvent(new PasswordResetGeneratedEvent(this, email, token));
+
+        return new ResponseEntity<>("Password reset token sent", HttpStatus.OK);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> confirmResetPassword(@RequestBody ResetPasswordRequest requestBody) {
+        accountService.resetPassword(requestBody.getToken(), requestBody.getNewPassword());
+        return new ResponseEntity<>("Password reset", HttpStatus.OK);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest requestBody) {
+        accountService.changeMyPassword(requestBody.getOldPassword(), requestBody.getNewPassword());
+        return new ResponseEntity<>("Password changed", HttpStatus.OK);
+    }
+
+
+    // special info management related
     @PostMapping("/{accountId}/identity-verification")
     public ResponseEntity<String> verifyIdentity(@RequestParam boolean verify, @PathVariable UUID accountId) {
         Account account = accountService.getAccountById(accountId);

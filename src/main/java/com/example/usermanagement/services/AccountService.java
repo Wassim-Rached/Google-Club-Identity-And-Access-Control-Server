@@ -7,6 +7,7 @@ import com.example.usermanagement.entities.Permission;
 import com.example.usermanagement.entities.Role;
 import com.example.usermanagement.entities.Account;
 import com.example.usermanagement.events.publishers.*;
+import com.example.usermanagement.events.publishers.emails.PasswordHaveBeenResetedEvent;
 import com.example.usermanagement.exceptions.ForbiddenException;
 import com.example.usermanagement.interfaces.services.IAccountService;
 import com.example.usermanagement.repositories.PermissionRepository;
@@ -68,15 +69,14 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    public void requestResetPassword(Account account) {
-        // TODO: generate,persist and send reset password token
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
     public void resetPassword(String token, String newPassword) {
-        // TODO: validate token and change password
-        throw new UnsupportedOperationException("Not implemented");
+        Account account = getMyAccount();
+
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+
+        var event = new PasswordHaveBeenResetedEvent(this,account.getEmail());
+        eventPublisher.publishEvent(event);
     }
 
     @Override
