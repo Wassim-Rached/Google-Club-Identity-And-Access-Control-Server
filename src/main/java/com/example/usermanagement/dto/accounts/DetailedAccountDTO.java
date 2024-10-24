@@ -17,6 +17,7 @@ public class DetailedAccountDTO {
     private Boolean isEmailVerified;
     private Boolean isLocked;
     private Boolean isIdentityVerified;
+    private Boolean isMember;
     private Instant createdAt;
     private Set<GeneralRoleDTO> roles;
     private Set<GeneralPermissionDTO> permissions;
@@ -29,6 +30,7 @@ public class DetailedAccountDTO {
         this.isLocked = account.getIsLocked();
         this.isIdentityVerified = account.getIsIdentityVerified();
         this.createdAt = account.getCreatedAt();
+        this.isMember = account.getIsMember();
         this.roles = GeneralRoleDTO.fromRoles(account.getRoles());
         this.permissions = GeneralPermissionDTO.fromPermissions(account.getPermissions());
     }

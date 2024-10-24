@@ -18,6 +18,7 @@ public class GeneralAccountDTO {
     private Boolean isEmailVerified;
     private Boolean isLocked;
     private Boolean isIdentityVerified;
+    private Boolean isMember;
     private Instant createdAt;
 
     public GeneralAccountDTO(Account userAccount) {
@@ -27,6 +28,7 @@ public class GeneralAccountDTO {
         this.isEmailVerified = userAccount.getIsEmailVerified();
         this.isLocked = userAccount.getIsLocked();
         this.isIdentityVerified = userAccount.getIsIdentityVerified();
+        this.isMember = userAccount.getIsMember();
         this.createdAt = userAccount.getCreatedAt();
     }
 

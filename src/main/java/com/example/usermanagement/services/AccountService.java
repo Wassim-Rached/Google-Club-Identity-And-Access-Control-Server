@@ -101,8 +101,7 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    public void changeMembership(boolean member, Account account) {
-        account.setIsIdentityVerified(member);
+    public void changeMembership(boolean member, Account account) {account.setIsMember(member);
         accountRepository.save(account);
 
         // Publish event

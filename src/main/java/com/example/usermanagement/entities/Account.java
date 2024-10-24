@@ -41,6 +41,9 @@ public class Account {
     @Column(nullable = false, name = "is_identity_verified", columnDefinition = "boolean default false")
     private Boolean isIdentityVerified = false;
 
+    @Column(nullable = false, name = "is_member", columnDefinition = "boolean default false")
+    private Boolean isMember = false;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "account_roles",
