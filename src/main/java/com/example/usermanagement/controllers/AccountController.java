@@ -26,7 +26,6 @@ public class AccountController {
     private final IAccountService accountService;
     private final IEmailVerificationTokenService emailVerificationTokenService;
     private final IPasswordResetTokenService passwordResetTokenService;
-    private final IEmailService emailService;
     private final ApplicationEventPublisher eventPublisher;
 
     // account management related
@@ -39,8 +38,8 @@ public class AccountController {
         // generate email verification token
         String token = emailVerificationTokenService.generateEmailVerificationToken(userAccount);
 
-        String body = "Click here to verify your email: http://localhost:8080/api/accounts/verify-email?token=" + token;
-        emailService.sendEmail("wa55death405@gmail.com", "Email verification", body);
+        var event = new EmailVerificationTokenGeneratedEvent(this, token, userAccount.getEmail());
+        eventPublisher.publishEvent(event);
 
         return new ResponseEntity<>(userAccount.getId(), HttpStatus.CREATED);
     }
