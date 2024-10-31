@@ -18,10 +18,10 @@ public class SecurityService {
 
         // check if the user has the required authority
         for( Authority authority : authorities){
-//            SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority.getAuthority());
-//            if(userAuthorities.contains(simpleGrantedAuthority)){
+            SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority.getAuthority());
+            if(userAuthorities.contains(simpleGrantedAuthority)){
                 return true;
-//            }
+            }
         }
 
         // return false if the user does not have the required authority
