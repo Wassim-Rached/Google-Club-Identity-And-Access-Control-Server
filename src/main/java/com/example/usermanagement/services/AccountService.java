@@ -7,12 +7,11 @@ import com.example.usermanagement.entities.Permission;
 import com.example.usermanagement.entities.Role;
 import com.example.usermanagement.entities.Account;
 import com.example.usermanagement.events.publishers.*;
+import com.example.usermanagement.events.publishers.emails.AccountDeletedEvent;
 import com.example.usermanagement.events.publishers.emails.PasswordHaveBeenResetedEvent;
-import com.example.usermanagement.exceptions.ForbiddenException;
+import com.example.usermanagement.exceptions.InputValidationException;
 import com.example.usermanagement.interfaces.services.IAccountService;
-import com.example.usermanagement.repositories.PermissionRepository;
-import com.example.usermanagement.repositories.RoleRepository;
-import com.example.usermanagement.repositories.AccountRepository;
+import com.example.usermanagement.repositories.*;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -36,9 +35,11 @@ import java.util.UUID;
 public class AccountService implements IAccountService {
 
     private final AccountRepository accountRepository;
-    private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
+    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -118,7 +119,7 @@ public class AccountService implements IAccountService {
     public void changeMyPassword(String oldPassword, String newPassword) {
         Account account = getMyAccount();
         if (!passwordEncoder.matches(oldPassword, account.getPassword())) {
-            throw new ForbiddenException("Old password is incorrect");
+            throw new InputValidationException("Old password is incorrect");
         }
         // TODO: count tries and lock account if too many tries
 
@@ -149,6 +150,38 @@ public class AccountService implements IAccountService {
     @Override
     public Account getMyAccount() {
         return  (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    @Override
+    public void deleteMyAccount(String password) {
+        Account account = getMyAccount();
+
+        // Validate password
+        if (!passwordEncoder.matches(password, account.getPassword())) {
+            throw new InputValidationException("Password is incorrect");
+        }
+
+        // Clear associations
+        account.getRoles().clear();
+        account.getPermissions().clear();
+
+        // Remove and delete associated tokens
+        if (account.getEmailVerificationToken() != null) {
+            emailVerificationTokenRepository.delete(account.getEmailVerificationToken());
+            account.setEmailVerificationToken(null);
+        }
+
+        if (account.getPasswordResetToken() != null) {
+            passwordResetTokenRepository.delete(account.getPasswordResetToken());
+            account.setPasswordResetToken(null);
+        }
+
+        // Delete the account
+        accountRepository.delete(account);
+
+        // trigger event
+        var event = new AccountDeletedEvent(this,account.getEmail());
+        eventPublisher.publishEvent(event);
     }
 
     @Override

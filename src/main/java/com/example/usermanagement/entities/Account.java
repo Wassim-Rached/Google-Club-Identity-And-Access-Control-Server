@@ -44,6 +44,12 @@ public class Account {
     @Column(nullable = false, name = "is_member", columnDefinition = "boolean default false")
     private Boolean isMember = false;
 
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private PasswordResetToken passwordResetToken;
+
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private EmailVerificationToken emailVerificationToken;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "account_roles",

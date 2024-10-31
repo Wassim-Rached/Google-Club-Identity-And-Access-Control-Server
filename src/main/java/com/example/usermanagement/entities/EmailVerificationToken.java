@@ -22,13 +22,13 @@ public class EmailVerificationToken {
     @Column(nullable = false, unique = true)
     private String token;
 
-    @Column(nullable = false)
+    @Column(nullable = false,name = "expiry_date")
     private Instant expiryDate;
 
-    @Column(nullable = false)
+    @Column(nullable = false,name = "created_date")
     private Instant createdDate;
 
-    @Column(nullable = false)
+    @Column(nullable = false,name = "is_used")
     private boolean isUsed;
 
     @OneToOne(fetch = FetchType.LAZY)

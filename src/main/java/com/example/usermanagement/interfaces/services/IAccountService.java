@@ -25,6 +25,7 @@ public interface IAccountService {
     void verifyIdentity(boolean isVerified, Account account);
 
     Account getMyAccount();
+    void deleteMyAccount(String password);
     Account updateMyAccount(UpdateAccountDTO requestBody);
 
     void resetPassword(String token, String newPassword);

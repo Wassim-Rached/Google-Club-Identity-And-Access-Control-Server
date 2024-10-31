@@ -56,7 +56,7 @@ public class EmailVerificationTokenService implements IEmailVerificationTokenSer
     public String consumeEmailVerificationToken(String token) {
         var emailVerificationToken = emailVerificationTokenRepository.findByToken(token).orElseThrow(
                 () -> new EntityNotFoundException("Email verification token not found"));
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
         if(emailVerificationToken.isExpired()) {
             throw new EmailVerificationTokenExpired("Email verification token has expired");
         }

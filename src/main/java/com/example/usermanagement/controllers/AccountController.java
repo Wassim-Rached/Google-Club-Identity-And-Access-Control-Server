@@ -68,6 +68,13 @@ public class AccountController {
         return new ResponseEntity<>(new GeneralAccountDTO(account), HttpStatus.OK);
     }
 
+    // with password
+    @DeleteMapping("/me")
+    public ResponseEntity<String> deleteMe(@RequestParam String password) {
+        accountService.deleteMyAccount(password);
+        return new ResponseEntity<>("Account deleted", HttpStatus.OK);
+    }
+
     @GetMapping("/{accountId}")
     public ResponseEntity<DetailedAccountDTO> getAccount(@PathVariable UUID accountId) {
         var account = new DetailedAccountDTO(accountService.getAccountById(accountId));
@@ -86,7 +93,7 @@ public class AccountController {
     public ResponseEntity<String> verifyEmail(@RequestParam String token) {
         String email = emailVerificationTokenService.consumeEmailVerificationToken(token);
         accountService.verifyAccountEmail(email);
-        return new ResponseEntity<>("Email verified", HttpStatus.OK);
+        return new ResponseEntity<>(email + " verified", HttpStatus.OK);
     }
 
     @PostMapping("/verify-email/resend")
