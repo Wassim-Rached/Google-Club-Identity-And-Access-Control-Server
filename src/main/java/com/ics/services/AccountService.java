@@ -205,7 +205,6 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    @PreAuthorize("@securityService.hasAuthority(T(com.ics.enums.Authority).VIEW_ACCOUNT)")
     public Account getAccountByEmail(String email) {
         return accountRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("'"+email+"'" + " Does not exist"));

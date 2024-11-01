@@ -7,6 +7,7 @@ import com.ics.exceptions.EmailVerificationTokenExpired;
 import com.ics.interfaces.services.IEmailVerificationTokenService;
 import com.ics.repositories.EmailVerificationTokenRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ public class EmailVerificationTokenService implements IEmailVerificationTokenSer
 
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
 
+    @Override
+    @Transactional
     public String generateEmailVerificationToken(Account account) {
         var existingToken = emailVerificationTokenRepository.findByAccount(account);
 
@@ -44,8 +47,10 @@ public class EmailVerificationTokenService implements IEmailVerificationTokenSer
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mma dd/MM/yyyy");
                 throw new BadRequestException("A New Token can be generated after " + canGenerateTokenAfter.format(formatter));
             }
-
+            token.setAccount(null);
+            account.setEmailVerificationToken(null);
             emailVerificationTokenRepository.delete(token);
+            emailVerificationTokenRepository.flush();
         }
 
         var newToken = new EmailVerificationToken(account, emailVerificationTokenExpiryInSec);
@@ -53,6 +58,7 @@ public class EmailVerificationTokenService implements IEmailVerificationTokenSer
         return newToken.getToken();
     }
 
+    @Override
     public String consumeEmailVerificationToken(String token) {
         var emailVerificationToken = emailVerificationTokenRepository.findByToken(token).orElseThrow(
                 () -> new EntityNotFoundException("Email verification token not found"));

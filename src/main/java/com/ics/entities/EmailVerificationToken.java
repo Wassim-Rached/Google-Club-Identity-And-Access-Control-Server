@@ -49,4 +49,16 @@ public class EmailVerificationToken {
     public boolean createdInLastSeconds(int seconds) {
         return Instant.now().isBefore(this.createdDate.plusSeconds(seconds));
     }
+
+    @Override
+    public String toString() {
+        return "EmailVerificationToken{" +
+                "id=" + id +
+                ", token='" + token + '\'' +
+                ", expiryDate=" + expiryDate +
+                ", createdDate=" + createdDate +
+                ", isUsed=" + isUsed +
+                ", account=" + account +
+                '}';
+    }
 }

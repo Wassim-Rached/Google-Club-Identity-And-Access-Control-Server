@@ -6,6 +6,7 @@ import com.ics.exceptions.BadRequestException;
 import com.ics.interfaces.services.IPasswordResetTokenService;
 import com.ics.repositories.PasswordResetTokenRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class PasswordResetTokenService implements IPasswordResetTokenService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Override
+    @Transactional
     public String generatePasswordResetToken(Account account) {
         var existingToken = passwordResetTokenRepository.findByAccount(account);
 
@@ -40,10 +42,16 @@ public class PasswordResetTokenService implements IPasswordResetTokenService {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mma dd/MM/yyyy");
                 throw new BadRequestException("A New Token can be generated after " + canGenerateTokenAfter.format(formatter));
             }
-
+            account.setPasswordResetToken(null);
+            token.setAccount(null);
             passwordResetTokenRepository.delete(token);
+            passwordResetTokenRepository.flush();
         }
 
+        return createNewPasswordResetToken(account);
+    }
+
+    private String createNewPasswordResetToken(Account account) {
         var newToken = new PasswordResetToken(account, passwordResetTokenExpiryInSec);
         passwordResetTokenRepository.save(newToken);
         return newToken.getToken();

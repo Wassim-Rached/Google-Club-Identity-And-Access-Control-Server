@@ -68,6 +68,7 @@ public class SecurityConfiguration {
                                     .requestMatchers(HttpMethod.POST, "/api/accounts/verify-email/resend").permitAll()
                                     // password resetting
                                     .requestMatchers(HttpMethod.POST, "/api/accounts/reset-password","/api/accounts/reset-password/resend").permitAll()
+                                    .requestMatchers(HttpMethod.GET, "/api/accounts/reset-password").permitAll()
                                     // others require authentication
                                     .anyRequest().authenticated()
                     );

@@ -48,5 +48,4 @@ public class PasswordResetToken {
     public boolean haveBeenCreatedLately(int seconds) {
         return Instant.now().isBefore(this.createdDate.plusSeconds(seconds));
     }
-
 }

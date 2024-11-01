@@ -26,12 +26,12 @@ public class EmailsListener {
                 "Your account have been created successfully." + "\n" +
                 "If you didn't request this, please contact us.";
 
-        emailService.sendEmail(event.getEmail(), "Account created", body);
+        emailService.sendEmail("wa55death405@gmail.com", "Account created", body);
     }
 
     @EventListener(EmailVerificationTokenGeneratedEvent.class)
     public void onEmailVerificationTokenGeneratedEvent(EmailVerificationTokenGeneratedEvent event) {
-        String link = amwc + "/auth/confirm-email-verification?token=" + event.getToken();
+        String link = amwc + "/auth/email-verification/confirm?token=" + event.getToken();
         String email = event.getEmail();
         String body = "Hello, " + email + "\n" +
                 "Click here to verify your email: " + link + "\n" +
@@ -42,13 +42,13 @@ public class EmailsListener {
 
     @EventListener(PasswordResetGeneratedEvent.class)
     public void onPasswordResetGeneratedEvent(PasswordResetGeneratedEvent event) {
-        String link = amwc + "/auth/confirm-reset-password?token=" + event.getToken();
+        String link = amwc + "/auth/reset-password/confirm?token=" + event.getToken();
         String email = event.getEmail();
         String body = "Hello, " + email + "\n" +
                 "Click here to reset your password: " + link + "\n" +
                 "If you didn't request this, please ignore this email.";
 
-        emailService.sendEmail(event.getEmail(), "Password reset", body);
+        emailService.sendEmail("wa55death405@gmail.com", "Password reset", body);
     }
 
     @EventListener(PasswordHaveBeenResetedEvent.class)
@@ -58,7 +58,7 @@ public class EmailsListener {
                 "Your password have been reseted successfully." + "\n" +
                 "If you didn't request this, please contact us.";
 
-        emailService.sendEmail(event.getEmail(), "Password reseted", body);
+        emailService.sendEmail("wa55death405@gmail.com", "Password reseted", body);
     }
 
     @EventListener(PasswordChangedEvent.class)
@@ -68,7 +68,7 @@ public class EmailsListener {
                 "Your password have been changed successfully." + "\n" +
                 "If you didn't request this, please contact us.";
 
-        emailService.sendEmail(event.getEmail(), "Password changed", body);
+        emailService.sendEmail("wa55death405@gmail.com", "Password changed", body);
     }
 
     @EventListener(AccountDeletedEvent.class)
@@ -78,7 +78,7 @@ public class EmailsListener {
                 "Your account have been deleted successfully." + "\n" +
                 "If you didn't request this, please contact us.";
 
-        emailService.sendEmail(event.getEmail(), "Account deleted", body);
+        emailService.sendEmail("wa55death405@gmail.com", "Account deleted", body);
     }
 
 }

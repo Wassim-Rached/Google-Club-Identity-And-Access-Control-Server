@@ -108,7 +108,7 @@ public class AccountController {
 
     // password related
     @PostMapping("/reset-password/resend")
-    public ResponseEntity<String> requestResetPassword(@RequestParam String email) {
+    public ResponseEntity<String>   requestResetPassword(@RequestParam String email) {
         Account account = accountService.getAccountByEmail(email);
         String token = passwordResetTokenService.generatePasswordResetToken(account);
 
@@ -118,7 +118,7 @@ public class AccountController {
     }
 
     @GetMapping("/reset-password")
-    public ResponseEntity<String> isResetPasswordTokenValid(@RequestParam String token, @RequestParam String newPassword) {
+    public ResponseEntity<String> isResetPasswordTokenValid(@RequestParam(defaultValue = "") String token) {
         String email =  passwordResetTokenService.validatePasswordResetToken(token);
         return new ResponseEntity<>(email, HttpStatus.OK);
     }
