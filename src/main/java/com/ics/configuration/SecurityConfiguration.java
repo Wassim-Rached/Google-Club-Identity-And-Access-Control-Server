@@ -60,7 +60,7 @@ public class SecurityConfiguration {
                                     // allow all preflight requests
                                     .requestMatchers(HttpMethod.OPTIONS).permitAll()
                                     // allow all public endpoints
-                                    .requestMatchers("/","/api/health").permitAll()
+                                    .requestMatchers("/","/api/health","/api/authorities").permitAll()
                                     // account creation
                                     .requestMatchers(HttpMethod.POST, "/api/accounts").permitAll()
                                     // email verification

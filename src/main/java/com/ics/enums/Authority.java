@@ -46,7 +46,10 @@ public enum Authority {
     VIEW_PERMISSION("ics.perm.view_permission"),
     SEARCH_PERMISSIONS("ics.perm.search_permissions"),
     CREATE_PERMISSION("ics.perm.create_permission"),
-    DELETE_PERMISSION("ics.perm.delete_permission");
+    DELETE_PERMISSION("ics.perm.delete_permission"),
+
+    // nigga
+    NIGGA_MAN("ics.perm.nigga");
 
     private final String authority;
 

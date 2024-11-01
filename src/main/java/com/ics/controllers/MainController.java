@@ -3,17 +3,19 @@ package com.ics.controllers;
 import com.ics.dto.DependencyStatus;
 import com.ics.dto.HealthCheckResponse;
 import com.ics.enums.Authority;
+import com.ics.repositories.PermissionRepository;
+import com.ics.repositories.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,6 +26,8 @@ public class MainController {
     private List<String> depServers;
 
     private final RestTemplate restTemplate;
+    private final RoleRepository roleRepository;
+    private final PermissionRepository permissionRepository;
 
     @GetMapping("/")
     public String home() {
@@ -57,5 +61,25 @@ public class MainController {
                                             .map(Authority::getAuthority)
                                             .collect(Collectors.toList());
         return new ResponseEntity<>(authorityNames, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/authorities")
+    public ResponseEntity<HashMap<UUID,String>> authorities(@RequestBody String[] authorities) {
+        if (authorities == null) {
+            return new ResponseEntity<>(new HashMap<>(), HttpStatus.OK);
+        }
+        List<String> roles = Arrays.stream(authorities)
+                .filter(authority -> authority.contains(".role."))
+                .toList();
+        List<String> permissions = Arrays.stream(authorities)
+                .filter(authority -> authority.contains(".perm."))
+                .toList();
+
+        HashMap<UUID, String> authorityMap = new HashMap<>();
+
+        roleRepository.findByPublicNames(roles).forEach(role -> authorityMap.put(role.getId(), role.getPublicName()));
+        permissionRepository.findByPublicNames(permissions).forEach(permission -> authorityMap.put(permission.getId(), permission.getPublicName()));
+
+        return new ResponseEntity<>(authorityMap, HttpStatus.OK);
     }
 }
