@@ -161,6 +161,7 @@ public class RoleService implements IRoleService {
     }
 
     @Override
+    @PreAuthorize("@securityService.hasAuthority(T(com.ics.enums.Authority).EDIT_AUTHORITIES, T(com.ics.enums.Authority).VIEW_ROLE, T(com.ics.enums.Authority).CREATE_ROLE)")
     public List<RoleImportResponse> importRoles(List<RoleImportRequest> requestBody){
         List<RoleImportResponse> responses = new ArrayList<>();
         for (var roleImportRequest : requestBody) {
