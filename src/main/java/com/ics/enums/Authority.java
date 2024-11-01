@@ -49,7 +49,7 @@ public enum Authority {
     DELETE_PERMISSION("ics.perm.delete_permission"),
 
     // nigga
-    NIGGA_MAN("ics.perm.nigga");
+    NIGGA_MAN("ics.perm.made_to_show_case_non_existing_authorities");
 
     private final String authority;
 
