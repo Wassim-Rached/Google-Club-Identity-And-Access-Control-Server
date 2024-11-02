@@ -24,6 +24,8 @@ spring:
             enable: ${MAIL_SMTP_STARTTLS_ENABLE:true}
 
 app:
+  jwt:
+    publicKey: ${JWT_PUBLIC_KEY:MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzTZAkC27UAR/FNX1kaAJ9IemjpYX1OILGWnjCxdMt1atFeCvTiaEZnHPI13p0r7YLw2DdQDePQEDpIrG1VbWadLUt6+4lHFFWIkllgnji5wJu/Og3cOXpzkezkBJdXSnCCBWPpnyLkMbUlGDayVLPflPsMs/YIL9alNs4jn5bENcLGmwtFkU3de27CrPR1QxHSPgptqYjaIJixwpp4mBc8mxl70/hedqSBW3FdjVRsLHCCr/v73s7VyCNYuMBa6m71PgX+sQtmK7hpG9nG4H53QdDSKoYERfmRW7dcbfYjokhxBJL9Q8KIzgMTy1QtEp3LM3L71xYMdToNcimsfXCQIDAQAB}
   email:
     verification:
       token:

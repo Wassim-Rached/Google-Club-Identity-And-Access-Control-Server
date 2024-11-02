@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -28,16 +29,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final String publicKey = """
-            -----BEGIN PUBLIC KEY-----
-            MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzTZAkC27UAR/FNX1kaAJ
-            9IemjpYX1OILGWnjCxdMt1atFeCvTiaEZnHPI13p0r7YLw2DdQDePQEDpIrG1VbW
-            adLUt6+4lHFFWIkllgnji5wJu/Og3cOXpzkezkBJdXSnCCBWPpnyLkMbUlGDayVL
-            PflPsMs/YIL9alNs4jn5bENcLGmwtFkU3de27CrPR1QxHSPgptqYjaIJixwpp4mB
-            c8mxl70/hedqSBW3FdjVRsLHCCr/v73s7VyCNYuMBa6m71PgX+sQtmK7hpG9nG4H
-            53QdDSKoYERfmRW7dcbfYjokhxBJL9Q8KIzgMTy1QtEp3LM3L71xYMdToNcimsfX
-            CQIDAQAB
-            -----END PUBLIC KEY-----""";
+    @Value("${app.jwt.publicKey}")
+    private String publicKey;
 
     private final AccountRepository userAccountRepository;
 
@@ -91,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private PublicKey getPublicKey() throws Exception {
-        byte[] keyBytes = Base64.getDecoder().decode("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzTZAkC27UAR/FNX1kaAJ9IemjpYX1OILGWnjCxdMt1atFeCvTiaEZnHPI13p0r7YLw2DdQDePQEDpIrG1VbWadLUt6+4lHFFWIkllgnji5wJu/Og3cOXpzkezkBJdXSnCCBWPpnyLkMbUlGDayVLPflPsMs/YIL9alNs4jn5bENcLGmwtFkU3de27CrPR1QxHSPgptqYjaIJixwpp4mBc8mxl70/hedqSBW3FdjVRsLHCCr/v73s7VyCNYuMBa6m71PgX+sQtmK7hpG9nG4H53QdDSKoYERfmRW7dcbfYjokhxBJL9Q8KIzgMTy1QtEp3LM3L71xYMdToNcimsfXCQIDAQAB");
+        byte[] keyBytes = Base64.getDecoder().decode(publicKey);
         X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         return keyFactory.generatePublic(spec);
