@@ -26,7 +26,7 @@ public class EmailsListener {
                 "Your account have been created successfully." + "\n" +
                 "If you didn't request this, please contact us.";
 
-        emailService.sendEmail("wa55death405@gmail.com", "Account created", body);
+        emailService.sendEmail(email, "Account created", body);
     }
 
     @EventListener(EmailVerificationTokenGeneratedEvent.class)
@@ -37,7 +37,7 @@ public class EmailsListener {
                 "Click here to verify your email: " + link + "\n" +
                 "If you didn't request this, please ignore this email.";
 
-        emailService.sendEmail("wa55death405@gmail.com", "Email verification", body);
+        emailService.sendEmail(email, "Email verification", body);
     }
 
     @EventListener(PasswordResetGeneratedEvent.class)
@@ -48,7 +48,7 @@ public class EmailsListener {
                 "Click here to reset your password: " + link + "\n" +
                 "If you didn't request this, please ignore this email.";
 
-        emailService.sendEmail("wa55death405@gmail.com", "Password reset", body);
+        emailService.sendEmail(email, "Password reset", body);
     }
 
     @EventListener(PasswordHaveBeenResetedEvent.class)
@@ -58,7 +58,7 @@ public class EmailsListener {
                 "Your password have been reseted successfully." + "\n" +
                 "If you didn't request this, please contact us.";
 
-        emailService.sendEmail("wa55death405@gmail.com", "Password reseted", body);
+        emailService.sendEmail(email, "Password reseted", body);
     }
 
     @EventListener(PasswordChangedEvent.class)
@@ -68,7 +68,7 @@ public class EmailsListener {
                 "Your password have been changed successfully." + "\n" +
                 "If you didn't request this, please contact us.";
 
-        emailService.sendEmail("wa55death405@gmail.com", "Password changed", body);
+        emailService.sendEmail(email, "Password changed", body);
     }
 
     @EventListener(AccountDeletedEvent.class)
@@ -78,7 +78,7 @@ public class EmailsListener {
                 "Your account have been deleted successfully." + "\n" +
                 "If you didn't request this, please contact us.";
 
-        emailService.sendEmail("wa55death405@gmail.com", "Account deleted", body);
+        emailService.sendEmail(email, "Account deleted", body);
     }
 
 }
