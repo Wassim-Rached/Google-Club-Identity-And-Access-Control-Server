@@ -1,35 +1,76 @@
-# Identity and Access Control Server (IAMC)
+# Google Club Unified Access System (UAS) - Identity Control Service (ICS)
 
-The **Identity and Access Control Server (IAMC)** is a backend service built with Spring Boot for handling user accounts, roles, and permissions management across multiple services. It centralizes the management of identities and access control policies within the system, ensuring secure and efficient authorization processes for all connected services.
+## Overview
 
-## Features
+The **Identity Control Service (ICS)** is a core component of the Google Club Unified Access System (UAS), responsible for managing identity and access control across the Google Club ecosystem. ICS centralizes user profiles, permissions, and administrative control, enabling secure, cohesive access management for both users and administrators.
 
-### 1. **Account Management**
-- **Account Creation**: Handles creating new user accounts with the appropriate default roles and permissions.
-- **Account Updates**: Allows users or administrators to update account information, including usernames, emails, and other details.
-- **Password Management**: Facilitates secure password management, including password updates and encryption.
+## Core Responsibilities
 
-### 2. **Role and Permission Management**
-- **Role Creation and Assignment**: Supports the creation of roles that define the scope of permissions a user has. Roles can be assigned or removed from users.
-- **Permission Management**: Enables administrators to create and manage fine-grained permissions (authorities) that define access to specific resources or actions.
-- **Granting and Revoking Authorities**: Administrators can grant or revoke individual permissions or authorities from users, controlling their access to certain features.
+### Identity Management
+- **User Profiles**: Manages user data, including account information and personal settings.
+- **Permissions**: Configures and maintains permissions across applications, ensuring that users have appropriate access.
+- **Administrative Controls**: Enables administrators to manage users, roles, and permissions from a centralized interface.
 
-### 3. **Authorization Control**
-- **Centralized Role-Based Access Control (RBAC)**: Manages role-based access control (RBAC) for all services, ensuring consistent and secure permission structures across the system.
-- **Permission-Based Access Control (PBAC)**: Facilitates fine-grained access control using permission-based policies, allowing for dynamic authorization based on specific user attributes and actions.
-  
-### 4. **Caching Control**
-- **Efficient Caching**: Manages any caching related to roles, permissions, or authorization data, ensuring fast and reliable access to identity-related information for connected services.
-- **Cache Invalidation**: Controls cache invalidation policies, ensuring that updates to roles, permissions, and user data are reflected promptly across all services.
+### Access Management
+- **Authority Verification**: Verifies permissions for integrated applications, maintaining consistent access control.
+- **Access Configuration**: Provides flexible controls for managing user roles and permissions based on application requirements.
 
-### 5. **Security**
-- **JWT-Based Authentication**: While not responsible for generating JWTs, IAMC validates and enforces security policies for requests containing JWTs issued by an external authentication server.
-- **Public Key Validation**: Verifies JWTs using public keys, ensuring that only authorized users have access to the system.
+## Technologies
 
-## Key Responsibilities
-- **Identity Management**: Centralized handling of user accounts, including creation, updates, and maintaining associated roles and permissions.
-- **Access Control**: Implements and enforces access control policies for users based on their roles and permissions.
-- **Caching Management**: Ensures efficient data caching and cache invalidation for roles and permissions to ensure real-time consistency in authorization across services.
+ICS is developed with **Spring Boot**, a robust framework designed for building production-ready, stand-alone applications. Its powerful backend capabilities make it ideal for handling identity management and secure access controls within the UAS.
 
-## Usage
-The **Identity and Access Control Server (IAMC)** is designed to work as a central authority for managing access control within a service-oriented architecture (SOA) or microservices environment. It allows other services to delegate identity and access management tasks, ensuring consistent role-based and permission-based control across the system.
+## API Endpoints
+
+### General Purpose
+- `GET /health-check`: Performs a health check for the ICS, ensuring the service is operational.
+
+### Account Management
+- `POST /create-account`: Creates a new user account within the UAS.
+- `POST /request-reset-password`: Initiates a password reset process for a user.
+- `POST /reset-password-with-token`: Resets a password using a verification token.
+- `POST /request-email-verification`: Sends an email verification request.
+- `GET /verify-email-with-token`: Verifies an email address using a token.
+- `GET /get-my-account`: Retrieves the logged-in user's account details.
+- `POST /change-my-password`: Allows users to change their password.
+- `PUT /update-my-account`: Updates account details for the logged-in user.
+- `DELETE /delete-my-account`: Deletes the user’s account.
+
+### Accounts Console Management
+- `GET /search-accounts`: Searches for user accounts based on specified criteria.
+- `GET /get-account-by-id`: Retrieves account details by user ID.
+- `POST /edit-authorities`: Edits an account's authorities and permissions.
+- `POST /toggle-verify-identity`: Toggles identity verification status.
+- `POST /toggle-membership`: Changes membership status.
+- `POST /lock-account`: Locks a user’s account, restricting access.
+
+### Role Management
+- `GET /search-roles`: Searches for roles within the system.
+- `POST /create-role`: Creates a new role.
+- `GET /get-role-by-id`: Retrieves details of a specific role by ID.
+- `POST /edit-role`: Edits an existing role.
+- `DELETE /delete-role`: Deletes a specified role.
+
+### Permission Management
+- `GET /search-permissions`: Searches for permissions available in the system.
+- `POST /create-permission`: Creates a new permission.
+- `GET /get-permission-by-id`: Retrieves permission details by ID.
+- `DELETE /delete-permission`: Deletes a specified permission.
+
+## System Communication
+
+ICS interacts seamlessly with other components in the UAS, including the **Central Authentication Service (CAS)** and the **Accounts Database**. This collaboration enables ICS to provide real-time access control, user management, and a unified identity framework for Google Club services.
+
+## How ICS Fits into the Google Club Unified Access System
+
+ICS serves as the identity and access management backbone of the UAS:
+- Consolidates user profiles, permissions, and administrative control across all Google Club applications.
+- Streamlines access management, enhancing security and reducing administrative complexity.
+- Supports consistent identity management and access control for improved user experience and scalability.
+
+## Current Maintainer
+
+- **Wassim Rached** is the primary developer and maintainer of the ICS component within the Google Club UAS.
+
+---
+
+The **Identity Control Service (ICS)** provides comprehensive identity and access management for Google Club services, ensuring secure, centralized control of user profiles and permissions within the UAS ecosystem.
